@@ -105,23 +105,23 @@ flowchart LR
 ### Detalle de Casos de Uso
 *(Tabla resumen del Borrador omitida en el diagrama para lectura a detalle)*
 
-| ID | Caso de Uso | Actores | Descripción |
-|---|---|---|---|
-| **CU01** | Registrar nueva película | Administrador | Permite registrar una nueva película con datos básicos. |
-| **CU02** | Actualizar metadatos y multimedia | Administrador | Permite editar información y actualizar recursos. |
-| **CU03** | Eliminar película | Administrador | Permite eliminar películas fuera de cartelera. |
-| **CU04** | Gestionar clasificaciones | Administrador | Asignar o modificar clasificación. |
-| **CU05** | Asignar sala y horario | Administrador | Programar funciones vinculando película y sala. |
-| **CU06** | Definir formato de proyección | Administrador | Configurar 2D, 3D, IMAX. |
-| **CU07** | Ver cartelera actualizada | Cliente | Visualizar lista de películas activas. |
-| **CU08** | Consultar detalles | Cliente | Ver información específica de película. |
-| **CU09** | Buscar y filtrar películas | Cliente | Búsqueda por género, clasificación, etc. |
-| **CU10** | Consultar funciones | Cliente | Visualizar horarios por fecha y sala. |
-| **CU11** | Seleccionar horario y sala | Cliente | Elegir la función a asistir. |
-| **CU12** | Visualizar mapa de asientos | Cliente / Taquillero | Ver estado en tiempo real (Disponible/Ocupado). |
-| **CU13** | Seleccionar asientos | Cliente | Marcar los asientos para la compra. |
-| **CU14** | Realizar pago | Cliente | Procesar pago con pasarela de pago externa. |
-| **CU15** | Iniciar sesión | Todos | Autenticación con credenciales válidas (JWT). |
+| ID       | Caso de Uso                       | Actores              | Descripción                                             |
+| -------- | --------------------------------- | -------------------- | ------------------------------------------------------- |
+| **CU01** | Registrar nueva película          | Administrador        | Permite registrar una nueva película con datos básicos. |
+| **CU02** | Actualizar metadatos y multimedia | Administrador        | Permite editar información y actualizar recursos.       |
+| **CU03** | Eliminar película                 | Administrador        | Permite eliminar películas fuera de cartelera.          |
+| **CU04** | Gestionar clasificaciones         | Administrador        | Asignar o modificar clasificación.                      |
+| **CU05** | Asignar sala y horario            | Administrador        | Programar funciones vinculando película y sala.         |
+| **CU06** | Definir formato de proyección     | Administrador        | Configurar 2D, 3D, IMAX.                                |
+| **CU07** | Ver cartelera actualizada         | Cliente              | Visualizar lista de películas activas.                  |
+| **CU08** | Consultar detalles                | Cliente              | Ver información específica de película.                 |
+| **CU09** | Buscar y filtrar películas        | Cliente              | Búsqueda por género, clasificación, etc.                |
+| **CU10** | Consultar funciones               | Cliente              | Visualizar horarios por fecha y sala.                   |
+| **CU11** | Seleccionar horario y sala        | Cliente              | Elegir la función a asistir.                            |
+| **CU12** | Visualizar mapa de asientos       | Cliente / Taquillero | Ver estado en tiempo real (Disponible/Ocupado).         |
+| **CU13** | Seleccionar asientos              | Cliente              | Marcar los asientos para la compra.                     |
+| **CU14** | Realizar pago                     | Cliente              | Procesar pago con pasarela de pago externa.             |
+| **CU15** | Iniciar sesión                    | Todos                | Autenticación con credenciales válidas (JWT).           |
 
 ## 4. Interacción Entre Servicios
 
@@ -173,3 +173,22 @@ sequenceDiagram
 | **Proceso Pago** | Cliente -> Gateway | Cargo de token mediante **Culqi**. | Pasarela Culqi |
 | **Notificaciones** | Evento Asíncrono | Genera PDF y envía correo. | Notification Service |
 | **Inicio Sesión** | Cliente -> Auth | Emite JWT tras credenciales correctas. | Auth Service |
+
+## 5. Estrategia de Orquestación y Agregación
+
+Para mantener el desacoplamiento y la autonomía de los microservicios sin perder consistencia, el sistema utiliza diferentes patrones según la naturaleza de la operación:
+
+### 5.1. Patrón Agregador (Backend For Frontend - BFF)
+Utilizado exclusivamente para **LECTURAS**. El **API Gateway** asume este rol para evitar que el cliente realice múltiples peticiones.
+*   **Caso de Uso (Cartelera y Pre-Estrenos):** Cuando el cliente ingresa al Home, el Gateway consulta en paralelo al `Movie Service` (para obtener metadatos y pósters de películas en cartelera o pre-estreno) y al `Showtime Service` (para obtener funciones futuras activas). El Gateway fusiona ambos arreglos de datos en memoria y devuelve una respuesta unificada al Frontend. Los microservicios de backend nunca se comunican entre sí para este flujo.
+
+### 5.2. Patrón Orquestador Localizado (Síncrono REST)
+Utilizado para **ESCRITURAS** o validaciones críticas donde se requiere **Consistencia Inmediata**. El microservicio que inicia la acción actúa temporalmente como orquestador, comunicándose con otros servicios mediante llamadas REST internas (ej. usando *Spring Cloud OpenFeign* apuntando a controladores internos no expuestos en el Gateway).
+*   **Caso de Uso (Retirar Película - RF-09):** El `Movie Service` asume el rol de Orquestador. Antes de pasar una película a estado `RETIRADA`, llama síncronamente al `Showtime Service` para preguntar si existen funciones futuras para ese ID. Si las hay, el `Movie Service` aborta el retiro (Rollback virtual) para evitar corromper la cartelera pública.
+*   **Caso de Uso (Eliminar Función - RF-16):** El `Showtime Service` asume el rol. Si el admin cancela una función, el `Showtime` debe llamar síncronamente al `Seat Service` ordenando la eliminación o desactivación de los tickets físicos pre-generados para evitar datos huérfanos.
+*   **Caso de Uso (Crear Función - RF-14):** El `Showtime Service` asume el rol. Al programar una función, llama síncronamente al `Seat Service` para pre-generar los 150 tickets. Si la generación falla, el `Showtime Service` hace Rollback de la función.
+    *   **Nota de Autonomía Excepcional:** Para este caso, el `Showtime Service` **NO** valida la existencia del `movie_id` de forma síncrona con el `Movie Service`. Delega esa confianza a la UI del Administrador (Frontend), la cual ya provee un ID válido de su propio catálogo. Esto evita acoplamiento temporal innecesario.
+
+### 5.3. Coreografía Basada en Eventos (Asíncrono)
+Utilizado para flujos que toleran **Consistencia Eventual** y requieren máximo rendimiento (Message Brokers como RabbitMQ/Kafka).
+*   **Caso de Uso (Flujo de Pagos - RF-24):** Al procesar un pago exitoso con Culqi, no se hacen llamadas REST. Se publica un evento asíncrono (Ej. `PagoCulqiExitoso`). El `Seat Service` actúa como suscriptor reaccionando para cambiar sus butacas de `LOCKED` a `SOLD`. A la par, el `Notification Service` reacciona generando el PDF con código QR y enviando el correo. Nadie espera síncronamente a nadie.
