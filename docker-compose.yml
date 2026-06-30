@@ -87,6 +87,29 @@ services:
     networks:
       - cinestar-network
 
+  cinestar-showtime-service:
+    build:
+      context: .
+      dockerfile: backend/showtime-service/Dockerfile
+    container_name: cinestar-showtime-service
+    restart: on-failure
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_showtime
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
+      - SPRING_REDIS_HOST=cinestar-redis
+      - SPRING_REDIS_PORT=6379
+      - SEAT_SERVICE_URL=http://cinestar-seat-service:8083/api/v1
+    ports:
+      - "8084:8084"
+    depends_on:
+      cinestar-postgres:
+        condition: service_healthy
+      cinestar-redis:
+        condition: service_healthy
+    networks:
+      - cinestar-network
+
   cinestar-api-gateway:
     build:
       context: .
@@ -105,6 +128,7 @@ services:
     depends_on:
       - cinestar-auth-service
       - cinestar-movie-service
+      - cinestar-showtime-service
     networks:
       - cinestar-network
 

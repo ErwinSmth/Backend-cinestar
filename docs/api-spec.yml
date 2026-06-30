@@ -126,6 +126,48 @@ components:
           type: array
           items:
             type: string
+    ProyeccionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        codigo:
+          type: string
+        descripcion:
+          type: string
+    SalaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        capacidad:
+          type: integer
+    FuncionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        movieId:
+          type: integer
+          format: int64
+        sala:
+          $ref: '#/components/schemas/SalaResponse'
+        proyeccion:
+          $ref: '#/components/schemas/ProyeccionResponse'
+        fechaInicio:
+          type: string
+          format: date-time
+        fechaFin:
+          type: string
+          format: date-time
+        precioTicket:
+          type: number
+        status:
+          type: string
 paths:
   # ==========================================
   # AUTHENTICATION SERVICE
@@ -396,7 +438,8 @@ paths:
   # ==========================================
   /showtimes:
     get:
-      summary: Obtiene funciones disponibles por fecha
+      summary: (Público) Obtiene funciones disponibles por fecha
+      operationId: getShowtimesByDate
       tags: [Showtimes]
       parameters:
         - name: fecha
@@ -408,8 +451,15 @@ paths:
       responses:
         '200':
           description: Lista de funciones programadas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FuncionResponse'
     post:
-      summary: Programa una nueva función
+      summary: (Admin) Programa una nueva función
+      operationId: programarFuncion
       tags: [Showtimes]
       security:
         - bearerAuth: []
@@ -424,13 +474,15 @@ paths:
                   type: integer
                   format: int64
                 sala_id:
-                  type: string
-                  format: uuid
+                  type: integer
+                  format: int64
                 proyeccion_id:
                   type: integer
                 fecha_inicio:
                   type: string
                   format: date-time
+                duracion_min:
+                  type: integer
                 precio_ticket:
                   type: number
       responses:
@@ -438,6 +490,81 @@ paths:
           description: Función programada y asientos pre-generados
         '409':
           description: Solapamiento de horarios en la misma sala
+
+  /showtimes/admin:
+    get:
+      summary: (Admin) Consultar logística completa
+      operationId: getAllShowtimesAdmin
+      tags: [Showtimes]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: salaId
+          in: query
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Lista completa de funciones (sin filtros forzados)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FuncionResponse'
+
+  /showtimes/{id}:
+    delete:
+      summary: (Admin) Cancelar función
+      operationId: cancelShowtime
+      tags: [Showtimes]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Función cancelada y asientos liberados/desactivados
+
+  /showtimes/salas:
+    get:
+      summary: (Público/Admin) Obtener catálogo de salas
+      operationId: getSalas
+      tags: [Showtimes]
+      responses:
+        '200':
+          description: Lista de salas activas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalaResponse'
+
+  /showtimes/proyecciones:
+    get:
+      summary: (Público/Admin) Obtener catálogo de proyecciones
+      operationId: getProyecciones
+      tags: [Showtimes]
+      responses:
+        '200':
+          description: Lista de formatos de proyección
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProyeccionResponse'
 
   # ==========================================
   # SEAT SERVICE
