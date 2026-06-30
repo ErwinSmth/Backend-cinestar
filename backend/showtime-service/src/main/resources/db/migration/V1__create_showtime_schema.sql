@@ -28,10 +28,13 @@ CREATE TABLE funcion (
     CONSTRAINT fk_funcion_proyeccion FOREIGN KEY (proyeccion_id) REFERENCES proyeccion(proyeccion_id)
 );
 
--- Índices recomendados para búsquedas frecuentes
-CREATE INDEX idx_funcion_movie_id ON funcion(movie_id);
+-- Índices recomendados para búsquedas frecuentes y de alto rendimiento
+-- Índice Compuesto: Acelera "dame horarios de esta película para este día"
+CREATE INDEX idx_funcion_movie_fecha ON funcion(movie_id, fecha_inicio);
 CREATE INDEX idx_funcion_sala_id ON funcion(sala_id);
-CREATE INDEX idx_funcion_fecha_inicio ON funcion(fecha_inicio);
+
+-- Índice Parcial: Acelera búsquedas públicas excluyendo basura histórica o cancelada
+CREATE INDEX idx_funciones_activas ON funcion(fecha_inicio) WHERE status = 'PROGRAMADA';
 
 -- Inserts iniciales para el catálogo de proyección estático
 INSERT INTO proyeccion (codigo, descripcion) VALUES
