@@ -1,8 +1,9 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MovieService, MovieDetailResponse } from '../../../core/services/movie.service';
+import { ShowtimeService, FuncionResponse } from '../../../core/services/showtime.service';
 
 @Component({
   selector: 'app-movie-detail',
@@ -13,7 +14,9 @@ import { MovieService, MovieDetailResponse } from '../../../core/services/movie.
 })
 export class MovieDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private movieService = inject(MovieService);
+  private showtimeService = inject(ShowtimeService);
   private sanitizer = inject(DomSanitizer);
   private location = inject(Location);
 
@@ -43,6 +46,16 @@ export class MovieDetailComponent implements OnInit {
     return this.ageRestrictionDict[code] || code;
   });
 
+  // Showtimes state
+  weekDays = signal<{ date: Date; isoDate: string; label: string; hasShowtimes: boolean }[]>([]);
+  showtimesMap = signal<Map<string, FuncionResponse[]>>(new Map());
+  selectedDate = signal<string>('');
+  isLoadingShowtimes = signal<boolean>(true);
+
+  availableFunctions = computed(() => {
+    return this.showtimesMap().get(this.selectedDate()) || [];
+  });
+
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -58,6 +71,7 @@ export class MovieDetailComponent implements OnInit {
       next: (data) => {
         this.movie.set(data);
         this.isLoading.set(false);
+        this.loadShowtimes(id);
       },
       error: (err) => {
         console.error('Error fetching movie details:', err);
@@ -65,6 +79,61 @@ export class MovieDetailComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  private loadShowtimes(movieId: number) {
+    this.isLoadingShowtimes.set(true);
+    const today = new Date();
+    const days: { date: Date; isoDate: string; label: string; hasShowtimes: boolean }[] = [];
+    
+    const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const isoDate = d.toISOString().split('T')[0];
+      let label = i === 0 ? 'Hoy ' + dayNames[d.getDay()] : dayNames[d.getDay()] + ' ' + d.getDate();
+      days.push({ date: d, isoDate, label, hasShowtimes: false });
+    }
+
+    this.showtimeService.getShowtimesForNext7Days().subscribe({
+      next: (results) => {
+        const map = new Map<string, FuncionResponse[]>();
+        let firstAvailableDate = '';
+
+        results.forEach((funciones, index) => {
+          const isoDate = days[index].isoDate;
+          const movieFunciones = funciones.filter(f => f.movieId === movieId);
+          map.set(isoDate, movieFunciones);
+          
+          if (movieFunciones.length > 0) {
+            days[index].hasShowtimes = true;
+            if (!firstAvailableDate) {
+              firstAvailableDate = isoDate;
+            }
+          }
+        });
+
+        this.showtimesMap.set(map);
+        this.weekDays.set(days);
+        this.selectedDate.set(firstAvailableDate || days[0].isoDate);
+        this.isLoadingShowtimes.set(false);
+      },
+      error: (err) => {
+        console.error('Error loading showtimes', err);
+        this.weekDays.set(days);
+        this.selectedDate.set(days[0].isoDate);
+        this.isLoadingShowtimes.set(false);
+      }
+    });
+  }
+
+  selectDate(isoDate: string) {
+    this.selectedDate.set(isoDate);
+  }
+
+  goToBooking(funcionId: number) {
+    this.router.navigate(['/booking', funcionId]);
   }
 
   goBack() {

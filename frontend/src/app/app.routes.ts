@@ -22,6 +22,10 @@ export const routes: Routes = [
   },
   { path: 'taquilla', component: TaquillaDashboard, canActivate: [taquillaGuard] },
   { 
+    path: 'booking/:funcionId', 
+    loadComponent: () => import('./features/public/booking/booking.component').then(m => m.BookingComponent) 
+  },
+  { 
     path: 'movies/:id', 
     loadComponent: () => import('./features/public/movie-detail/movie-detail.component').then(m => m.MovieDetailComponent) 
   },

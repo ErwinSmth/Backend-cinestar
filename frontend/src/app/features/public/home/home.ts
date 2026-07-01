@@ -1,9 +1,10 @@
 import { Component, computed, inject, OnInit, OnDestroy, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../../../core/services/auth.service';
 import { MovieService, MovieCarteleraResponse } from '../../../core/services/movie.service';
+import { ShowtimeService, FuncionResponse } from '../../../core/services/showtime.service';
 
 @Component({
   selector: 'app-home',
@@ -14,8 +15,10 @@ import { MovieService, MovieCarteleraResponse } from '../../../core/services/mov
 export class Home implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private movieService = inject(MovieService);
+  private showtimeService = inject(ShowtimeService);
   private sanitizer = inject(DomSanitizer);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   isAuthenticated = this.authService.isAuthenticated;
   cartelera = this.movieService.cartelera;
@@ -160,6 +163,9 @@ export class Home implements OnInit, OnDestroy {
   }
 
   toggleQuickBookTab(tab: 'pelicula' | 'fecha' | 'hora') {
+    if (tab === 'fecha' && !this.selectedMovieForBook()) return;
+    if (tab === 'hora' && !this.selectedDateForBook()) return;
+
     if (this.activeQuickBookTab() === tab) {
       this.activeQuickBookTab.set(null);
     } else {
@@ -195,5 +201,90 @@ export class Home implements OnInit, OnDestroy {
   onSearchInput(event: Event) {
     const input = event.target as HTMLInputElement;
     this.searchQuery.set(input.value);
+  }
+
+  // --- QUICK BOOK LOGIC ---
+  selectedMovieForBook = signal<MovieCarteleraResponse | null>(null);
+  selectedDateForBook = signal<string | null>(null);
+  selectedFuncionForBook = signal<FuncionResponse | null>(null);
+  
+  availableDates = signal<{isoDate: string; label: string}[]>([]);
+  availableFunciones = signal<FuncionResponse[]>([]);
+  allShowtimesMap = signal<Map<string, FuncionResponse[]>>(new Map());
+
+  selectMovieForBook(movie: MovieCarteleraResponse) {
+    this.selectedMovieForBook.set(movie);
+    this.selectedDateForBook.set(null);
+    this.selectedFuncionForBook.set(null);
+    this.activeQuickBookTab.set(null);
+    
+    if (this.allShowtimesMap().size === 0) {
+      this.loadAllShowtimes();
+    } else {
+      this.updateAvailableDates(movie.id);
+    }
+  }
+
+  private loadAllShowtimes() {
+    this.showtimeService.getShowtimesForNext7Days().subscribe({
+      next: (results) => {
+        const today = new Date();
+        const map = new Map<string, FuncionResponse[]>();
+        
+        results.forEach((funciones, index) => {
+          const d = new Date(today);
+          d.setDate(today.getDate() + index);
+          const isoDate = d.toISOString().split('T')[0];
+          map.set(isoDate, funciones);
+        });
+        
+        this.allShowtimesMap.set(map);
+        const movieId = this.selectedMovieForBook()?.id;
+        if (movieId) {
+          this.updateAvailableDates(movieId);
+        }
+      }
+    });
+  }
+
+  private updateAvailableDates(movieId: number) {
+    const dates: {isoDate: string; label: string}[] = [];
+    const map = this.allShowtimesMap();
+    const today = new Date();
+    
+    Array.from(map.entries()).forEach(([isoDate, funciones]) => {
+      const hasMovie = funciones.some(f => f.movieId === movieId);
+      if (hasMovie) {
+        const parts = isoDate.split('-');
+        const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+        const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        dates.push({ isoDate, label: `${dayNames[dateObj.getDay()]} ${dateObj.getDate()}/${dateObj.getMonth()+1}` });
+      }
+    });
+    this.availableDates.set(dates);
+  }
+
+  selectDateForBook(isoDate: string, label: string) {
+    this.selectedDateForBook.set(label); // Store label for display
+    this.selectedFuncionForBook.set(null);
+    this.activeQuickBookTab.set(null);
+    
+    const movieId = this.selectedMovieForBook()?.id;
+    if (movieId) {
+      const funciones = this.allShowtimesMap().get(isoDate) || [];
+      this.availableFunciones.set(funciones.filter(f => f.movieId === movieId));
+    }
+  }
+
+  selectFuncionForBook(funcion: FuncionResponse) {
+    this.selectedFuncionForBook.set(funcion);
+    this.activeQuickBookTab.set(null);
+  }
+
+  goToBooking() {
+    const fId = this.selectedFuncionForBook()?.id;
+    if (fId) {
+      this.router.navigate(['/booking', fId]);
+    }
   }
 }

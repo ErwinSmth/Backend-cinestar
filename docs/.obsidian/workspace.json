@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "03_Microservicios/03.4_Showtime_Service.md",
+                "file": "04_Frontend/03_UI_UX_Business_Logic.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "03.4_Showtime_Service"
+              "title": "03_UI_UX_Business_Logic"
             }
           }
         ],
@@ -68,8 +68,8 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "agregador",
-                "matchingCase": false,
+                "query": "hasActivePresale",
+                "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": false,
                 "extraContext": false,
@@ -89,7 +89,8 @@
               "title": "Marcadores"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -171,13 +172,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "03_Microservicios/03.4_Showtime_Service.md",
+                "file": "04_Frontend/03_UI_UX_Business_Logic.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de 03.4_Showtime_Service"
+              "title": "Esquema de 03_UI_UX_Business_Logic"
             }
           }
         ],
@@ -200,16 +201,17 @@
   },
   "active": "297c8c11583948fc",
   "lastOpenFiles": [
-    "03_Microservicios/03.3_Movie_Service.md",
+    "01_Requerimientos/README.md",
+    "04_Frontend/03_UI_UX_Business_Logic.md",
+    "04_Frontend/02_Stack_Tecnologico.md",
+    "04_Frontend/01_Directrices.md",
     "03_Microservicios/03.4_Showtime_Service.md",
+    "03_Microservicios/03.3_Movie_Service.md",
     "04_Base_De_Datos/04_Showtime_Database.md",
     "02_Arquitectura/README.md",
-    "01_Requerimientos/README.md",
     "03_Microservicios/03.1_API_Gateway.md",
     "04_Base_De_Datos/03_Seat_Database.md",
-    "04_Frontend/01_Directrices.md",
     "03_Microservicios/03.6_Concession_Service.md",
-    "04_Frontend/02_Stack_Tecnologico.md",
     "04_Frontend",
     "06_Infraestructura/01_Entorno_Docker.md",
     "00_Home.md",
