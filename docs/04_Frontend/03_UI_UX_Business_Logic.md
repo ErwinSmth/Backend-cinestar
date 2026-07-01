@@ -23,7 +23,7 @@ Las películas en estado `PRE-ESTRENO` se muestran aquí. Existen sub-estados im
     1. `Comprar Preventa` (Rojo destacado).
     2. `Ver Tráiler` (Secundario/Glassmorphism).
 
-*Nota técnica Integración Backend*: El cálculo de estas banderas se hará en tiempo real en el **API Gateway**. Consultará las películas del catálogo (`movie-service`) y verificará con `showtime-service` si existen funciones futuras registradas. No se necesita modificar el esquema de base de datos actual para esto, la tabla `funcion` proveerá esta data.
+*Nota técnica Integración Backend*: El cálculo de estas banderas se hará en tiempo real en el **API Gateway** (actuando como BFF). El Gateway consultará las películas del catálogo (`movie-service`) y, en paralelo, consumirá un endpoint ultraligero del `showtime-service` (ej. `GET /showtimes/movies/active`) que devolverá únicamente un arreglo de `movie_id`s con funciones futuras programadas (`SELECT DISTINCT movie_id...`). Luego, el Gateway cruzará esta data en memoria (O(1)) e inyectará los flags en el payload del Frontend, manteniendo la carga instantánea y evitando problemas de N+1 peticiones. No se necesita modificar el esquema de base de datos actual para esto.
 
 ## 3. Tráilers Destacados (Featured Trailers)
 - **Data Source**: Se debe combinar la lista de `Próximos Estrenos` y `Cartelera`, filtrando estrictamente las películas que contengan al menos un tráiler en su array `trailers`.
@@ -37,7 +37,8 @@ Las películas en estado `PRE-ESTRENO` se muestran aquí. Existen sub-estados im
   2. Se despliega un menú flotante sobre la barra.
   3. Tras seleccionar una película, se habilitan las fechas disponibles.
   4. Tras seleccionar una fecha, se habilitan las horas (funciones) disponibles.
-- **Integración**: Este componente se nutrirá directamente del `showtime-service` (Microservicio de Funciones) cuando esté desarrollado.
+- **Ocultamiento Inteligente (Filtro)**: Para optimizar la experiencia de usuario, el desplegable de "Elige Película" filtrará internamente el catálogo proveído por el Gateway. Aquellas películas que no tengan funciones activas ni preventas (`!hasActiveShowtimes && !hasActivePresale`) **no** aparecerán en la lista. Esto evita que el usuario inicie un flujo "muerto" que termine en fechas vacías.
+- **Integración**: Este componente se nutrirá directamente de los flags inyectados por el Gateway y la data de horarios del `showtime-service`.
 
 ## 5. Panel de Administración (Dashboard)
 El panel de administración resume la operatividad del negocio basándose estrictamente en datos calculables y cruzables por el API Gateway desde los microservicios:
