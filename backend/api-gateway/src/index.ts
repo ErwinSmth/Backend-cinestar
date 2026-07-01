@@ -8,6 +8,8 @@ import { env } from './config/env';
 import authRoutes from './routes/auth.routes';
 import { authMiddleware } from './middleware/auth.middleware';
 
+import moviesBffRoutes from './routes/movies.bff.routes';
+
 const app = express();
 
 // --- Middlewares Globales de Seguridad ---
@@ -64,10 +66,14 @@ app.use('/api/v1/auth', authLimiter, authRoutes);
 
 // --- Rutas Reverse Proxy (Microservicios) ---
 
-// Movie Service: Proxy con validación selectiva en el API Gateway
+// Rutas de Lectura (BFF)
+app.use('/api/v1/movies', moviesBffRoutes);
+
+// Movie Service: Proxy con validación selectiva en el API Gateway para escrituras/admin
 app.use('/api/v1/movies', (req: Request, res: Response, next: NextFunction) => {
-  // Rutas publicas de peliculas (Cartelera es '/' en el servicio, y detalle es '/:id')
-  const isPublicRoute = req.method === 'GET' && (req.path === '/' || req.path === '' || req.path === '/pre-estreno' || /^\/\d+$/.test(req.path));
+  // Las rutas publicas ya fueron interceptadas por moviesBffRoutes si son / o /pre-estreno.
+  // Pero el detalle de película (/:id) sigue usando el proxy directo porque no necesita cruzarse con active_movies.
+  const isPublicRoute = req.method === 'GET' && /^\/\d+$/.test(req.path);
   
   if (isPublicRoute) {
     return next();

@@ -16,6 +16,7 @@ VALUES (
    '{
       "director": "Destin Daniel Cretton",
       "posterPath": "https://image.tmdb.org/t/p/w500/fBFjaDWfNslvrs6bJjknmG27wOS.jpg",
+      "backdropPath": "https://image.tmdb.org/t/p/w1280/vjMvFSmGUxEtqVdaZgvFee9XkZl.jpg",
       "actores": ["Tom Holland", "Zendaya", "Sadie Sink", "Jacob Batalon", "Jon Bernthal"],
       "generos": ["Acción", "Aventura", "Ciencia ficción"],
       "trailers": [

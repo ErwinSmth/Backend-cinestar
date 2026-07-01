@@ -56,6 +56,7 @@ public class TmdbRestClient {
         URI uri = UriComponentsBuilder.fromUriString(apiUrl + "/movie/" + movieId)
                 .queryParam("append_to_response", appendToResponse)
                 .queryParam("language", language)
+                .queryParam("include_image_language", "es,en,null")
                 .build()
                 .encode()
                 .toUri();

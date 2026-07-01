@@ -22,4 +22,8 @@ public interface FuncionRepository extends JpaRepository<Funcion, Long> {
     List<Funcion> findOverlappingFunciones(@Param("salaId") Long salaId, 
                                            @Param("start") LocalDateTime start, 
                                            @Param("end") LocalDateTime end);
+
+    // Obtener IDs únicos de películas con funciones activas/futuras
+    @Query("SELECT DISTINCT f.movieId FROM Funcion f WHERE f.status = 'PROGRAMADA' AND f.fechaInicio >= CURRENT_TIMESTAMP")
+    List<Long> findActiveMovieIds();
 }

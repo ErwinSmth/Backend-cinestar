@@ -39,6 +39,10 @@ components:
           type: array
           items:
             type: string
+        hasActivePresale:
+          type: boolean
+        hasActiveShowtimes:
+          type: boolean
     MovieAdminResponse:
       type: object
       properties:
@@ -126,6 +130,10 @@ components:
           type: array
           items:
             type: string
+        hasActivePresale:
+          type: boolean
+        hasActiveShowtimes:
+          type: boolean
     ProyeccionResponse:
       type: object
       properties:
@@ -457,6 +465,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FuncionResponse'
+
+  /showtimes/movies/active:
+    get:
+      summary: (Interno/BFF) Obtiene IDs de películas con funciones activas
+      operationId: getActiveMovieIds
+      tags: [Showtimes]
+      responses:
+        '200':
+          description: Arreglo de IDs de películas con funciones futuras programadas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int64
+
     post:
       summary: (Admin) Programa una nueva función
       operationId: programarFuncion

@@ -94,6 +94,11 @@ public class MovieService {
         if (tmdbData.has("backdrop_path") && !tmdbData.get("backdrop_path").isNull()) {
             metadataNode.put("backdropPath",
                     "https://image.tmdb.org/t/p/w1280" + tmdbData.get("backdrop_path").asText());
+        } else if (tmdbData.has("images") && tmdbData.get("images").has("backdrops")
+                && tmdbData.get("images").get("backdrops").isArray()
+                && tmdbData.get("images").get("backdrops").size() > 0) {
+            String fallbackPath = tmdbData.get("images").get("backdrops").get(0).get("file_path").asText();
+            metadataNode.put("backdropPath", "https://image.tmdb.org/t/p/w1280" + fallbackPath);
         }
 
         com.fasterxml.jackson.databind.node.ArrayNode genresNode = metadataNode.putArray("generos");

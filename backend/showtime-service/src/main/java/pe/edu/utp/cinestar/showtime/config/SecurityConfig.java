@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/showtimes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/showtimes/salas").permitAll()
                         .requestMatchers(HttpMethod.GET, "/showtimes/proyecciones").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/showtimes/movies/active").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(headerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

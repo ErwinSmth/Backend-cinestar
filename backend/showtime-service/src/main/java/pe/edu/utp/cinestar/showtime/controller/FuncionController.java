@@ -58,4 +58,9 @@ public class FuncionController {
     public ResponseEntity<List<ProyeccionResponse>> getProyecciones() {
         return ResponseEntity.ok(funcionService.getProyecciones());
     }
+
+    @GetMapping("/movies/active")
+    public ResponseEntity<List<Long>> getActiveMovieIds() {
+        return ResponseEntity.ok(funcionService.getActiveMovieIds());
+    }
 }

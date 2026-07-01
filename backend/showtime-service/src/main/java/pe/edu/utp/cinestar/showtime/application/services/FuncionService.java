@@ -3,6 +3,7 @@ package pe.edu.utp.cinestar.showtime.application.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.utp.cinestar.showtime.application.client.SeatRestClient;
@@ -37,7 +38,10 @@ public class FuncionService {
     private static final int CLEANING_TIME_MINUTES = 30;
 
     @Transactional
-    @CacheEvict(value = "showtimes", key = "#request.getFechaInicio().toLocalDate().toString()")
+    @Caching(evict = {
+        @CacheEvict(value = "showtimes", key = "#request.getFechaInicio().toLocalDate().toString()"),
+        @CacheEvict(value = "active_movie_ids", allEntries = true)
+    })
     public Long programarFuncion(ProgramarFuncionRequest request) {
         Sala sala = salaRepository.findById(request.getSalaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Sala no encontrada"));
@@ -99,7 +103,7 @@ public class FuncionService {
     }
 
     @Transactional
-    @CacheEvict(value = "showtimes", allEntries = true)
+    @CacheEvict(value = {"showtimes", "active_movie_ids"}, allEntries = true)
     public void cancelarFuncion(Long id) {
         Funcion funcion = funcionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Función no encontrada con ID: " + id));
@@ -110,6 +114,11 @@ public class FuncionService {
         // Orquestación para cancelar (o liberar) butacas en Seat Service
         // TODO: Descomentar cuando el Seat Service esté implementado
         // seatRestClient.cancelSeats(funcion.getId());
+    }
+
+    @Cacheable(value = "active_movie_ids")
+    public List<Long> getActiveMovieIds() {
+        return funcionRepository.findActiveMovieIds();
     }
 
     public List<SalaResponse> getSalasActivas() {
@@ -128,10 +137,10 @@ public class FuncionService {
         dto.setMovieId(f.getMovieId());
         
         if (f.getFechaInicio() != null) {
-            dto.setFechaInicio(f.getFechaInicio().atOffset(java.time.ZoneOffset.UTC));
+            dto.setFechaInicio(f.getFechaInicio().atOffset(java.time.ZoneOffset.ofHours(-5)));
         }
         if (f.getFechaFin() != null) {
-            dto.setFechaFin(f.getFechaFin().atOffset(java.time.ZoneOffset.UTC));
+            dto.setFechaFin(f.getFechaFin().atOffset(java.time.ZoneOffset.ofHours(-5)));
         }
         
         dto.setPrecioTicket(f.getPrecioTicket());
