@@ -86,7 +86,7 @@
           </h2>
           
           <div style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; padding: 4rem 2rem; text-align: center;">
-            @if (m.estado === 'PRE-ESTRENO' && availableFunctions().length === 0 && !isLoadingShowtimes()) {
+            @if (m.estado === 'PRE-ESTRENO' && !hasAnyShowtime() && !isLoadingShowtimes()) {
               <div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 120px; height: 120px; border-radius: 50%; background: rgba(220,38,38,0.1); margin-bottom: 1.5rem;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
               </div>

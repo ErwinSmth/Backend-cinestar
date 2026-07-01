@@ -12,6 +12,8 @@ export interface MovieCarteleraResponse {
   restriccion_edad: string;
   fecha_estreno?: string;
   trailers?: string[];
+  hasActivePresale?: boolean;
+  hasActiveShowtimes?: boolean;
 }
 
 export interface TmdbMovie {
@@ -35,6 +37,8 @@ export interface MovieDetailResponse {
   actores?: string[];
   generos?: string[];
   trailers?: string[];
+  hasActivePresale?: boolean;
+  hasActiveShowtimes?: boolean;
 }
 
 export interface Movie {

@@ -56,6 +56,10 @@ export class MovieDetailComponent implements OnInit {
     return this.showtimesMap().get(this.selectedDate()) || [];
   });
 
+  hasAnyShowtime = computed(() => {
+    return this.weekDays().some(d => d.hasShowtimes);
+  });
+
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');

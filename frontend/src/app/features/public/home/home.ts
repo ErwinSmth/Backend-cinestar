@@ -46,16 +46,23 @@ export class Home implements OnInit, OnDestroy {
   heroIndex = signal<number>(0);
   private heroTimer: any;
 
-  // Hero movies: combina cartelera + preEstrenos ordenados por fecha_estreno descendente, toma top 4
+  // Hero movies: combina cartelera + preEstrenos ordenados por relevancia, toma top 7
   heroMovies = computed<MovieCarteleraResponse[]>(() => {
     const all = [...this.cartelera(), ...this.preEstrenos()].filter(m => m.backdrop_path);
     return all
       .sort((a, b) => {
+        const scoreA = (a.hasActivePresale ? 100 : 0) + (a.hasActiveShowtimes ? 50 : 0);
+        const scoreB = (b.hasActivePresale ? 100 : 0) + (b.hasActiveShowtimes ? 50 : 0);
+        
+        if (scoreA !== scoreB) {
+            return scoreB - scoreA;
+        }
+
         const dA = a.fecha_estreno ? new Date(a.fecha_estreno).getTime() : 0;
         const dB = b.fecha_estreno ? new Date(b.fecha_estreno).getTime() : 0;
         return dB - dA;
       })
-      .slice(0, 4);
+      .slice(0, 7);
   });
 
   currentHeroMovie = computed<MovieCarteleraResponse | null>(() => {
