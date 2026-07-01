@@ -67,7 +67,8 @@ public class FuncionService {
         funcion = funcionRepository.save(funcion);
 
         // Orquestación Síncrona hacia el Seat Service (Si falla, Spring hace Rollback)
-        seatRestClient.preGenerateSeats(funcion.getId(), sala.getCapacidad());
+        // TODO: Descomentar cuando el Seat Service esté implementado
+        // seatRestClient.preGenerateSeats(funcion.getId(), sala.getCapacidad());
 
         return funcion.getId();
     }
@@ -107,7 +108,8 @@ public class FuncionService {
         funcionRepository.save(funcion);
 
         // Orquestación para cancelar (o liberar) butacas en Seat Service
-        seatRestClient.cancelSeats(funcion.getId());
+        // TODO: Descomentar cuando el Seat Service esté implementado
+        // seatRestClient.cancelSeats(funcion.getId());
     }
 
     public List<SalaResponse> getSalasActivas() {

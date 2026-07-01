@@ -18,6 +18,7 @@ Verifican que la aplicación interactúa correctamente con los recursos externos
 * **Microservicios (Java):**
   * **Herramientas:** Testcontainers (PostgreSQL).
   * **Alcance:** Repositorios de datos, sentencias SQL nativas, ORM (Hibernate) y control de concurrencia (Optimistic Locking).
+  * **Problemas Conocidos (Workaround):** En entornos Linux basados en Alpine/Arch (como CachyOS) ejecutando Docker versión 29 o superior, `Testcontainers` puede fallar al interactuar con el Docker Socket (errores de parseo de versión o timeout). Si esto ocurre, la estrategia de mitigación es **bypassear las pruebas de integración con Testcontainers** temporalmente y realizar validaciones manuales End-to-End levantando el entorno completo mediante `docker compose up -d --build`.
 * **API Gateway:**
   * **Herramientas:** Supertest + Jest.
   * **Alcance:** Verificar que el proxy responde correctamente simulando la respuesta de los microservicios subyacentes.
@@ -26,7 +27,7 @@ Verifican que la aplicación interactúa correctamente con los recursos externos
 ### Ejecución de Pruebas Automatizadas
 Para ejecutar las pruebas en tu máquina local, utiliza los siguientes comandos desde la raíz de cada microservicio respectivo:
 - **API Gateway:** `npm test` (requiere `npm install` previo).
-- **Servicios Java (Spring Boot):** `./mvnw test` (Testcontainers requiere que Docker esté en ejecución).
+- **Servicios Java (Spring Boot):** `./mvnw test` (Testcontainers requiere que Docker esté en ejecución y compatible, de lo contrario se debe recurrir a validación manual E2E).
 
 ## 3. Pruebas End-to-End (E2E) y Contratos (API)
 Pruebas que validan el flujo completo de la aplicación, entrando por el API Gateway y afectando la base de datos real en un entorno controlado (Docker Compose local).

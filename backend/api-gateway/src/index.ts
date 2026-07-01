@@ -87,14 +87,17 @@ app.use('/api/v1/seats', authMiddleware, createProxyMiddleware({
   onProxyReq: fixRequestBody
 }));
 
-// Showtime Service: Consultas de asientos publicas, programar funciones privado
-app.use('/api/v1/showtimes', createProxyMiddleware((pathname, req) => req.method === 'GET', {
-  target: env.SHOWTIME_SERVICE_URL,
-  changeOrigin: true,
-  onProxyReq: fixRequestBody
-}));
-
-app.use('/api/v1/showtimes', authMiddleware, createProxyMiddleware((pathname, req) => req.method !== 'GET', {
+// Showtime Service: Consultas publicas y privadas (admin)
+app.use('/api/v1/showtimes', (req: Request, res: Response, next: NextFunction) => {
+  // Rutas públicas de funciones
+  const isPublicRoute = req.method === 'GET' && (req.path === '/' || req.path === '' || req.path === '/salas' || req.path === '/proyecciones');
+  
+  if (isPublicRoute) {
+    return next();
+  }
+  // Todo lo demás (POST, DELETE, GET /admin) requiere JWT
+  authMiddleware(req, res, next);
+}, createProxyMiddleware({
   target: env.SHOWTIME_SERVICE_URL,
   changeOrigin: true,
   onProxyReq: fixRequestBody
