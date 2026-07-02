@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "02_Arquitectura/README.md",
+                "file": "03_Microservicios/03.5_Seat_Service.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "03.5_Seat_Service"
             }
           }
         ],
@@ -171,13 +171,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "02_Arquitectura/README.md",
+                "file": "03_Microservicios/03.5_Seat_Service.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de README"
+              "title": "Esquema de 03.5_Seat_Service"
             }
           }
         ],
@@ -200,6 +200,7 @@
   },
   "active": "297c8c11583948fc",
   "lastOpenFiles": [
+    "02_Arquitectura/README.md",
     "01_Requerimientos/README.md",
     "04_Frontend/01_Directrices.md",
     "04_Frontend/03_UI_UX_Business_Logic.md",
@@ -207,7 +208,6 @@
     "03_Microservicios/03.4_Showtime_Service.md",
     "05_Seguridad/01_Security_Architecture.md",
     "07_Testing/01_Estrategia_Pruebas.md",
-    "02_Arquitectura/README.md",
     "04_Frontend/02_Stack_Tecnologico.md",
     "03_Microservicios/03.3_Movie_Service.md",
     "03_Microservicios/03.1_API_Gateway.md",
