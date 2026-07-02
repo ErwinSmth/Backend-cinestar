@@ -6,6 +6,7 @@ export interface SalaResponse {
   id: number;
   nombre: string;
   capacidad: number;
+  estado?: string;
 }
 
 export interface ProyeccionResponse {
@@ -56,7 +57,7 @@ export class ShowtimeService {
     for (let i = 0; i < 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      const isoDate = d.toISOString().split('T')[0]; // YYYY-MM-DD
+      const isoDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0]; // YYYY-MM-DD local
       dates.push(isoDate);
     }
 
@@ -64,5 +65,31 @@ export class ShowtimeService {
     
     // forkJoin ejecuta todas las peticiones en paralelo y devuelve un solo observable con el array de resultados
     return forkJoin(requests);
+  }
+
+  // --- MÉTODOS DE ADMINISTRADOR ---
+
+  getActiveSalas(): Observable<SalaResponse[]> {
+    return this.http.get<SalaResponse[]>(`${this.apiUrl}/salas`);
+  }
+
+  getProyecciones(): Observable<ProyeccionResponse[]> {
+    return this.http.get<ProyeccionResponse[]>(`${this.apiUrl}/proyecciones`);
+  }
+
+  getAllShowtimesAdmin(): Observable<FuncionResponse[]> {
+    return this.http.get<FuncionResponse[]>(`${this.apiUrl}/admin`);
+  }
+
+  programarFuncion(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, payload, { observe: 'response', responseType: 'text' });
+  }
+
+  cancelShowtime(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  updateSalaStatus(id: number, status: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/salas/${id}/status`, { status });
   }
 }

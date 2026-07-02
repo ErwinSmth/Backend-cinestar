@@ -19,7 +19,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.5 12.572L22 10.3l-3.32-.234L17 7l-1.68 3.066L12 10.3l2.5 2.272-.73 3.284L17 14.187l3.23 1.67-.73-3.285z"></path><path d="M2 14v-2c0-1.1.9-2 2-2h8"></path><path d="M2 14v2c0 1.1.9 2 2 2h8"></path><path d="M2 14h12"></path></svg>
         Películas
       </a>
-      <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition cursor-pointer">
+      <a routerLink="/admin/showtimes" routerLinkActive="bg-red-600/10 text-red-500" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition cursor-pointer">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
         Funciones
       </a>
@@ -80,11 +80,15 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div class="bg-[#060b14] border border-slate-800 p-6 rounded-xl shadow-lg">
             <p class="text-slate-400 text-xs font-semibold mb-2 uppercase tracking-wider">Funciones Hoy</p>
-            <p class="text-2xl font-black text-slate-600">Pronto</p>
+            <p class="text-2xl font-black text-white">
+              {{ funcionesHoyCount() !== null ? funcionesHoyCount() : '...' }}
+            </p>
           </div>
           <div class="bg-[#060b14] border border-slate-800 p-6 rounded-xl shadow-lg">
             <p class="text-slate-400 text-xs font-semibold mb-2 uppercase tracking-wider">Salas Operativas</p>
-            <p class="text-2xl font-black text-slate-600">Pronto</p>
+            <p class="text-2xl font-black text-white">
+              {{ salasOperativasCount() !== null ? salasOperativasCount() : '...' }}
+            </p>
           </div>
           <div class="bg-[#060b14] border border-slate-800 p-6 rounded-xl shadow-lg">
             <p class="text-slate-400 text-xs font-semibold mb-2 uppercase tracking-wider">Entradas Vendidas</p>

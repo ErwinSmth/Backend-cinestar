@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MovieService, MovieDetailResponse } from '../../../core/services/movie.service';
 import { ShowtimeService, FuncionResponse } from '../../../core/services/showtime.service';
@@ -8,7 +8,7 @@ import { ShowtimeService, FuncionResponse } from '../../../core/services/showtim
 @Component({
   selector: 'app-movie-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './movie-detail.component.html',
   styleUrls: ['./movie-detail.component.css']
 })
@@ -95,7 +95,7 @@ export class MovieDetailComponent implements OnInit {
     for (let i = 0; i < 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      const isoDate = d.toISOString().split('T')[0];
+      const isoDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
       let label = i === 0 ? 'Hoy ' + dayNames[d.getDay()] : dayNames[d.getDay()] + ' ' + d.getDate();
       days.push({ date: d, isoDate, label, hasShowtimes: false });
     }

@@ -241,7 +241,7 @@ export class Home implements OnInit, OnDestroy {
         results.forEach((funciones, index) => {
           const d = new Date(today);
           d.setDate(today.getDate() + index);
-          const isoDate = d.toISOString().split('T')[0];
+          const isoDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
           map.set(isoDate, funciones);
         });
         

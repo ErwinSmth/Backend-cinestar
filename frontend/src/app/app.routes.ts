@@ -4,6 +4,7 @@ import { Register } from './features/auth/register/register';
 import { Home } from './features/public/home/home';
 import { Dashboard } from './features/admin/dashboard/dashboard';
 import { AdminMovies } from './features/admin/movies/admin-movies';
+import { AdminShowtimesComponent } from './features/admin/showtimes/showtimes.component';
 import { TaquillaDashboard } from './features/taquilla/dashboard/taquilla-dashboard';
 import { adminGuard } from './core/guards/admin.guard';
 import { taquillaGuard } from './core/guards/taquilla.guard';
@@ -17,7 +18,8 @@ export const routes: Routes = [
     component: Dashboard, 
     canActivate: [adminGuard],
     children: [
-      { path: 'peliculas', component: AdminMovies }
+      { path: 'peliculas', component: AdminMovies },
+      { path: 'showtimes', component: AdminShowtimesComponent }
     ]
   },
   { path: 'taquilla', component: TaquillaDashboard, canActivate: [taquillaGuard] },
