@@ -15,7 +15,7 @@ CREATE TABLE tickets (
     funcion_id BIGINT NOT NULL,
     asientos_id BIGINT NOT NULL,
     usuario_id BIGINT,
-    estado VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+    estado VARCHAR(20) NOT NULL DEFAULT 'DISPONIBLE',
     tiempo_bloqueo TIMESTAMP,
     version INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT fk_tickets_asientos FOREIGN KEY (asientos_id) REFERENCES asientos(asientos_id)

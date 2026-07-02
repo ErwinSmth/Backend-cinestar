@@ -25,7 +25,7 @@ Representa el estado transaccional de un asiento para una función específica. 
 *   `funcion_id` (BIGINT): Referencia externa al Showtime (función programada).
 *   `asientos_id` (BIGINT, Foreign Key -> `asientos.asientos_id`)
 *   `usuario_id` (BIGINT, Nullable): ID del usuario que reservó o compró. Nace como NULL.
-*   `estado` (VARCHAR 20): El Semáforo del Negocio (`AVAILABLE`, `LOCKED`, `SOLD`, `CANCELLED`).
+*   `estado` (VARCHAR 20): El Semáforo del Negocio (`DISPONIBLE`, `BLOQUEADO`, `VENDIDO`, `CANCELADO`).
 *   `tiempo_bloqueo` (TIMESTAMP, Nullable): El Temporizador de Abandono. Fecha/Hora límite en estado `LOCKED`.
 *   `version` (INTEGER): El Escudo de BD. Controlado por la anotación `@Version` de JPA para manejar el Optimistic Locking de manera nativa.
 
