@@ -1,6 +1,7 @@
 package pe.edu.utp.cinestar.showtime.domain.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pe.edu.utp.cinestar.showtime.domain.entities.Funcion;
@@ -29,4 +30,13 @@ public interface FuncionRepository extends JpaRepository<Funcion, Long> {
 
     // Validar si existen funciones programadas a futuro para una sala (usado para mantenimiento)
     boolean existsBySalaIdAndFechaInicioGreaterThanEqualAndStatus(Long salaId, LocalDateTime fechaInicio, String status);
+
+    // Actualizaciones automáticas de estado (Cron Job)
+    @Modifying
+    @Query("UPDATE Funcion f SET f.status = 'EN_CURSO' WHERE f.status = 'PROGRAMADA' AND f.fechaInicio <= CURRENT_TIMESTAMP")
+    int updateToEnCurso();
+
+    @Modifying
+    @Query("UPDATE Funcion f SET f.status = 'FINALIZADA' WHERE f.status = 'EN_CURSO' AND f.fechaFin <= CURRENT_TIMESTAMP")
+    int updateToFinalizada();
 }

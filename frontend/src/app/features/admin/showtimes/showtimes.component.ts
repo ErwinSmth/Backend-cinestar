@@ -21,6 +21,56 @@ export class AdminShowtimesComponent implements OnInit {
   salas = signal<SalaResponse[]>([]);
   proyecciones = signal<ProyeccionResponse[]>([]);
   
+  // Table Filters & Sorting
+  filterStatus = signal<'TODAS' | 'ACTIVAS' | 'PROGRAMADA' | 'EN_CURSO' | 'FINALIZADA' | 'CANCELADA'>('ACTIVAS');
+  filterSala = signal<number | null>(null);
+  filterFecha = signal<string>('');
+  sortField = signal<'FECHA' | 'PRECIO' | 'SALA'>('FECHA');
+  sortOrder = signal<'ASC' | 'DESC'>('ASC');
+
+  filteredFunciones = computed(() => {
+    let result = this.funciones();
+
+    // 1. Filter by Status
+    const status = this.filterStatus();
+    if (status === 'ACTIVAS') {
+      result = result.filter(f => f.status === 'PROGRAMADA' || f.status === 'EN_CURSO');
+    } else if (status !== 'TODAS') {
+      result = result.filter(f => f.status === status);
+    }
+
+    // 2. Filter by Sala
+    const salaId = this.filterSala();
+    if (salaId) {
+      result = result.filter(f => f.sala.id === salaId);
+    }
+
+    // 3. Filter by Fecha
+    const fecha = this.filterFecha();
+    if (fecha) {
+      result = result.filter(f => f.fechaInicio.startsWith(fecha));
+    }
+
+    // 4. Sort
+    result = [...result].sort((a, b) => {
+      const field = this.sortField();
+      const order = this.sortOrder() === 'ASC' ? 1 : -1;
+
+      if (field === 'FECHA') {
+        return (new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime()) * order;
+      }
+      if (field === 'PRECIO') {
+        return (a.precioTicket - b.precioTicket) * order;
+      }
+      if (field === 'SALA') {
+        return (a.sala.nombre.localeCompare(b.sala.nombre)) * order;
+      }
+      return 0;
+    });
+
+    return result;
+  });
+
   // Create Form State
   showCreateModal = signal<boolean>(false);
   
@@ -96,6 +146,19 @@ export class AdminShowtimesComponent implements OnInit {
 
   closeCreateModal() {
     this.showCreateModal.set(false);
+  }
+
+  toggleSort(field: 'FECHA' | 'PRECIO' | 'SALA') {
+    if (this.sortField() === field) {
+      this.sortOrder.set(this.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      this.sortField.set(field);
+      this.sortOrder.set('ASC');
+    }
+  }
+
+  setStatusFilter(status: 'TODAS' | 'ACTIVAS' | 'PROGRAMADA' | 'EN_CURSO' | 'FINALIZADA' | 'CANCELADA') {
+    this.filterStatus.set(status);
   }
 
   selectMovie(id: number) {

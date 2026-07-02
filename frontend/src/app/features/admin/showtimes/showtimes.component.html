@@ -15,9 +15,34 @@
 
   <!-- TAB FUNCIONES -->
   <ng-container *ngIf="activeTab() === 'FUNCIONES'">
-    <div class="flex justify-end mb-4">
-      <button (click)="openCreateModal()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition shadow-lg shadow-red-600/20 flex items-center gap-2">
-        <span>➕</span> Programar Función
+    <!-- Toolbar: Filtros y Botón -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+      
+      <!-- Filtros Inteligentes (Pills) -->
+      <div class="flex flex-wrap gap-2 bg-[#060b14] p-1.5 rounded-xl border border-slate-800 shadow-lg">
+        <button (click)="setStatusFilter('TODAS')" 
+                [class]="filterStatus() === 'TODAS' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400 hover:text-slate-200'"
+                class="px-3 py-1.5 rounded-lg text-sm transition">Todas</button>
+        <div class="w-px bg-slate-800 mx-1"></div>
+        <button (click)="setStatusFilter('ACTIVAS')" 
+                [class]="filterStatus() === 'ACTIVAS' ? 'bg-indigo-500/20 text-indigo-400 font-bold border-indigo-500/50' : 'text-slate-400 hover:text-slate-200 border-transparent'"
+                class="px-3 py-1.5 rounded-lg text-sm border transition">Por Venir</button>
+        <button (click)="setStatusFilter('EN_CURSO')" 
+                [class]="filterStatus() === 'EN_CURSO' ? 'bg-emerald-500/20 text-emerald-400 font-bold border-emerald-500/50' : 'text-slate-400 hover:text-slate-200 border-transparent'"
+                class="px-3 py-1.5 rounded-lg text-sm border transition flex items-center gap-1">
+                <span *ngIf="filterStatus() === 'EN_CURSO'" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                En Curso</button>
+        <button (click)="setStatusFilter('FINALIZADA')" 
+                [class]="filterStatus() === 'FINALIZADA' ? 'bg-slate-700/50 text-slate-300 font-bold border-slate-600' : 'text-slate-400 hover:text-slate-200 border-transparent'"
+                class="px-3 py-1.5 rounded-lg text-sm border transition">Finalizadas</button>
+        <button (click)="setStatusFilter('CANCELADA')" 
+                [class]="filterStatus() === 'CANCELADA' ? 'bg-red-500/20 text-red-400 font-bold border-red-500/50' : 'text-slate-400 hover:text-slate-200 border-transparent'"
+                class="px-3 py-1.5 rounded-lg text-sm border transition">Canceladas</button>
+      </div>
+
+      <button (click)="openCreateModal()" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)] flex items-center gap-2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Programar Función
       </button>
     </div>
 
@@ -27,15 +52,33 @@
         <thead class="bg-slate-800/50 text-slate-400 uppercase text-xs font-semibold">
           <tr>
             <th class="px-6 py-4">Película</th>
-            <th class="px-6 py-4">Sala</th>
-            <th class="px-6 py-4">Horario</th>
-            <th class="px-6 py-4">Precio</th>
+            <th (click)="toggleSort('SALA')" class="px-6 py-4 cursor-pointer hover:text-white transition group">
+              <div class="flex items-center gap-2">
+                Sala
+                <span *ngIf="sortField() === 'SALA'" class="text-red-500">{{ sortOrder() === 'ASC' ? '↑' : '↓' }}</span>
+                <span *ngIf="sortField() !== 'SALA'" class="opacity-0 group-hover:opacity-100 text-slate-600">↕</span>
+              </div>
+            </th>
+            <th (click)="toggleSort('FECHA')" class="px-6 py-4 cursor-pointer hover:text-white transition group">
+              <div class="flex items-center gap-2">
+                Horario
+                <span *ngIf="sortField() === 'FECHA'" class="text-red-500">{{ sortOrder() === 'ASC' ? '↑' : '↓' }}</span>
+                <span *ngIf="sortField() !== 'FECHA'" class="opacity-0 group-hover:opacity-100 text-slate-600">↕</span>
+              </div>
+            </th>
+            <th (click)="toggleSort('PRECIO')" class="px-6 py-4 cursor-pointer hover:text-white transition group">
+              <div class="flex items-center gap-2">
+                Precio
+                <span *ngIf="sortField() === 'PRECIO'" class="text-red-500">{{ sortOrder() === 'ASC' ? '↑' : '↓' }}</span>
+                <span *ngIf="sortField() !== 'PRECIO'" class="opacity-0 group-hover:opacity-100 text-slate-600">↕</span>
+              </div>
+            </th>
             <th class="px-6 py-4">Estado</th>
             <th class="px-6 py-4 text-right">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-800/50">
-          <tr *ngFor="let f of funciones()" class="hover:bg-slate-800/20 transition">
+          <tr *ngFor="let f of filteredFunciones()" class="hover:bg-slate-800/40 transition border-transparent hover:border-slate-700 border-y">
             <td class="px-6 py-4 font-bold text-white">{{ getMovieTitle(f.movieId) }}</td>
             <td class="px-6 py-4">{{ f.sala.nombre }}</td>
             <td class="px-6 py-4">
@@ -44,8 +87,18 @@
             </td>
             <td class="px-6 py-4 text-emerald-400 font-bold">${{ f.precioTicket }}</td>
             <td class="px-6 py-4">
-              <span [class]="f.status === 'PROGRAMADA' ? 'bg-blue-500/10 text-blue-400' : 'bg-red-500/10 text-red-400'" class="px-3 py-1 rounded-full text-xs font-bold tracking-wider">
-                {{ f.status }}
+              <!-- Badges Premium -->
+              <span *ngIf="f.status === 'PROGRAMADA'" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> PROGRAMADA
+              </span>
+              <span *ngIf="f.status === 'EN_CURSO'" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> EN CURSO
+              </span>
+              <span *ngIf="f.status === 'FINALIZADA'" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider bg-slate-800 text-slate-400 border border-slate-700/50">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> FINALIZADA
+              </span>
+              <span *ngIf="f.status === 'CANCELADA'" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider bg-red-500/10 text-red-400 border border-red-500/20">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg> CANCELADA
               </span>
             </td>
             <td class="px-6 py-4 text-right">
@@ -54,11 +107,21 @@
               </button>
             </td>
           </tr>
-          <tr *ngIf="funciones().length === 0">
-            <td colspan="6" class="px-6 py-12 text-center text-slate-500">No hay funciones programadas</td>
+          <tr *ngIf="filteredFunciones().length === 0">
+            <td colspan="6" class="px-6 py-16 text-center">
+              <div class="flex flex-col items-center justify-center text-slate-500">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="mb-4 opacity-50"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                <p class="text-lg font-bold text-slate-400 mb-1">No se encontraron funciones</p>
+                <p class="text-sm">Intenta cambiar los filtros seleccionados.</p>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
+      <!-- Footer Info -->
+      <div class="bg-slate-900/50 px-6 py-4 border-t border-slate-800 text-sm text-slate-400 flex justify-between items-center">
+        <span>Mostrando <strong class="text-white">{{ filteredFunciones().length }}</strong> funciones de un total de <strong class="text-white">{{ funciones().length }}</strong></span>
+      </div>
     </div>
   </ng-container>
 
