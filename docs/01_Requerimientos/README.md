@@ -44,6 +44,7 @@ Este proyecto propone el desarrollo de un sistema web basado en microservicios p
 | **RF-17** | Validación de Horarios | Evitar traslapes de horarios en una misma sala. |
 | **RF-18** | Asignación de Tecnología | Permitir definir tipo de proyección (2D, 3D, IMAX). |
 | **RF-19** | Consulta de Funciones | Permitir visualizar funciones disponibles por fecha y película. |
+| **RF-20** | Cancelación por Emergencia | Permitir forzar el mantenimiento de una sala, cancelando funciones activas (SAGA) e iniciando reembolsos y entrega de cupones de cortesía. |
 
 ### 3.4. Seat Inventory Service (Servicio de Asientos)
 | ID | Requerimiento Específico | Descripción |
