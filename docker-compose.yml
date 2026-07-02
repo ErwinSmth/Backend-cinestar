@@ -42,6 +42,24 @@ services:
       timeout: 5s
       retries: 5
 
+  cinestar-rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: cinestar-rabbitmq
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - cinestar-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ==========================================
   # MICROSERVICIOS
   # ==========================================
@@ -114,6 +132,30 @@ services:
     networks:
       - cinestar-network
 
+  cinestar-seat-service:
+    build:
+      context: .
+      dockerfile: backend/seat-service/Dockerfile
+    container_name: cinestar-seat-service
+    restart: on-failure
+    environment:
+      - TZ=America/Lima
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_seats
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
+      - JWT_SECRET=${JWT_SECRET}
+      - RABBITMQ_HOST=cinestar-rabbitmq
+      - SHOWTIME_SERVICE_URL=http://cinestar-showtime-service:8084/api/v1
+    ports:
+      - "8083:8083"
+    depends_on:
+      cinestar-postgres:
+        condition: service_healthy
+      cinestar-rabbitmq:
+        condition: service_healthy
+    networks:
+      - cinestar-network
+
   cinestar-api-gateway:
     build:
       context: .
@@ -133,6 +175,7 @@ services:
     depends_on:
       - cinestar-auth-service
       - cinestar-movie-service
+      - cinestar-seat-service
       - cinestar-showtime-service
     networks:
       - cinestar-network
