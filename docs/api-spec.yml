@@ -153,6 +153,8 @@ components:
           type: string
         capacidad:
           type: integer
+        estado:
+          type: string
     FuncionResponse:
       type: object
       properties:
@@ -163,9 +165,9 @@ components:
           type: integer
           format: int64
         sala:
-          $ref: '#/components/schemas/SalaResponse'
+          $ref: "#/components/schemas/SalaResponse"
         proyeccion:
-          $ref: '#/components/schemas/ProyeccionResponse'
+          $ref: "#/components/schemas/ProyeccionResponse"
         fechaInicio:
           type: string
           format: date-time
@@ -201,7 +203,7 @@ paths:
                 apellidos:
                   type: string
       responses:
-        '201':
+        "201":
           description: Usuario registrado exitosamente y auto-logueado
           content:
             application/json:
@@ -216,7 +218,7 @@ paths:
                     type: array
                     items:
                       type: string
-        '400':
+        "400":
           description: Errores de validación o correo duplicado (BadRequestException)
 
   /auth/login:
@@ -236,7 +238,7 @@ paths:
                 contrasena:
                   type: string
       responses:
-        '200':
+        "200":
           description: Login exitoso
           content:
             application/json:
@@ -251,7 +253,7 @@ paths:
                     type: array
                     items:
                       type: string
-        '401':
+        "401":
           description: Credenciales inválidas
 
   # ==========================================
@@ -271,9 +273,9 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Lista de resultados básicos de TMDB
-          
+
   /movies/tmdb/import/{tmdbId}:
     post:
       summary: (Admin) Importar al Cine Local
@@ -289,9 +291,9 @@ paths:
           schema:
             type: integer
       responses:
-        '201':
+        "201":
           description: ID local generado (Película guardada)
-        '502':
+        "502":
           description: TMDBIntegrationException (Error con la API externa)
 
   /movies/admin:
@@ -311,14 +313,14 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Catálogo local sin filtros forzados
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MovieAdminResponse'
+                  $ref: "#/components/schemas/MovieAdminResponse"
 
   /movies/{id}:
     get:
@@ -333,13 +335,13 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
+        "200":
           description: Documento detallado de la película con metadata JSONB extraída
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MovieDetailResponse'
-        '404':
+                $ref: "#/components/schemas/MovieDetailResponse"
+        "404":
           description: MovieNotFoundException
     put:
       summary: (Admin) Actualizar metadatos y clasificaciones
@@ -370,9 +372,9 @@ paths:
                 status:
                   type: string
       responses:
-        '200':
+        "200":
           description: Película actualizada
-        '400':
+        "400":
           description: ConstraintViolationException
     delete:
       summary: (Admin) Eliminar película (Soft Delete)
@@ -388,9 +390,9 @@ paths:
             type: integer
             format: int64
       responses:
-        '204':
+        "204":
           description: Eliminación lógica exitosa
-        '409':
+        "409":
           description: IllegalMovieStateException (Ya tiene funciones)
 
   /movies:
@@ -408,14 +410,14 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Películas activas en cartelera (Fuerza status=CARTELERA)
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MovieCarteleraResponse'
+                  $ref: "#/components/schemas/MovieCarteleraResponse"
 
   /movies/pre-estreno:
     get:
@@ -432,14 +434,14 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Películas en estado PRE-ESTRENO
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MovieCarteleraResponse'
+                  $ref: "#/components/schemas/MovieCarteleraResponse"
 
   # ==========================================
   # SHOWTIME SERVICE
@@ -457,31 +459,14 @@ paths:
             type: string
             format: date
       responses:
-        '200':
+        "200":
           description: Lista de funciones programadas
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FuncionResponse'
-
-  /showtimes/movies/active:
-    get:
-      summary: (Interno/BFF) Obtiene IDs de películas con funciones activas
-      operationId: getActiveMovieIds
-      tags: [Showtimes]
-      responses:
-        '200':
-          description: Arreglo de IDs de películas con funciones futuras programadas
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: integer
-                  format: int64
-
+                  $ref: "#/components/schemas/FuncionResponse"
     post:
       summary: (Admin) Programa una nueva función
       operationId: programarFuncion
@@ -511,10 +496,26 @@ paths:
                 precio_ticket:
                   type: number
       responses:
-        '201':
+        "201":
           description: Función programada y asientos pre-generados
-        '409':
+        "409":
           description: Solapamiento de horarios en la misma sala
+
+  /showtimes/movies/active:
+    get:
+      summary: (Interno/BFF) Obtiene IDs de películas con funciones activas
+      operationId: getActiveMovieIds
+      tags: [Showtimes]
+      responses:
+        "200":
+          description: Arreglo de IDs de películas con funciones futuras programadas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int64
 
   /showtimes/admin:
     get:
@@ -534,14 +535,14 @@ paths:
             type: integer
             format: int64
       responses:
-        '200':
+        "200":
           description: Lista completa de funciones (sin filtros forzados)
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FuncionResponse'
+                  $ref: "#/components/schemas/FuncionResponse"
 
   /showtimes/{id}:
     delete:
@@ -558,7 +559,7 @@ paths:
             type: integer
             format: int64
       responses:
-        '204':
+        "204":
           description: Función cancelada y asientos liberados/desactivados
 
   /showtimes/salas:
@@ -567,14 +568,45 @@ paths:
       operationId: getSalas
       tags: [Showtimes]
       responses:
-        '200':
+        "200":
           description: Lista de salas activas
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SalaResponse'
+                  $ref: "#/components/schemas/SalaResponse"
+
+  /showtimes/salas/{id}/status:
+    patch:
+      summary: (Admin) Cambiar el estado de una sala (ej. MANTENIMIENTO)
+      operationId: updateSalaStatus
+      tags: [Showtimes]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [ACTIVA, MANTENIMIENTO]
+      responses:
+        "204":
+          description: Estado actualizado correctamente
+        "409":
+          description: RoomConflictException (La sala tiene funciones pendientes y no puede ponerse en mantenimiento)
 
   /showtimes/proyecciones:
     get:
@@ -582,14 +614,14 @@ paths:
       operationId: getProyecciones
       tags: [Showtimes]
       responses:
-        '200':
+        "200":
           description: Lista de formatos de proyección
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ProyeccionResponse'
+                  $ref: "#/components/schemas/ProyeccionResponse"
 
   # ==========================================
   # SEAT SERVICE
@@ -606,7 +638,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Mapa de butacas y su estado actual
 
   /seats/lock:
@@ -626,7 +658,7 @@ paths:
                   type: string
                   format: uuid
       responses:
-        '200':
+        "200":
           description: Asiento bloqueado con éxito
-        '409':
+        "409":
           description: Asiento ya fue tomado por otro usuario (OptimisticLockException)

@@ -63,4 +63,15 @@ public class FuncionController {
     public ResponseEntity<List<Long>> getActiveMovieIds() {
         return ResponseEntity.ok(funcionService.getActiveMovieIds());
     }
+
+    @PatchMapping("/salas/{id}/status")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+    public ResponseEntity<Void> updateSalaStatus(@PathVariable("id") Long id, @RequestBody java.util.Map<String, String> payload) {
+        String status = payload.get("status");
+        if (status == null || status.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        funcionService.updateSalaStatus(id, status);
+        return ResponseEntity.noContent().build();
+    }
 }

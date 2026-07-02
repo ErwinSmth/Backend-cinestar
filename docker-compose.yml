@@ -10,8 +10,9 @@ services:
     container_name: cinestar-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+      - TZ=America/Lima
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-root}
     ports:
       - "5433:5432"
     volumes:
@@ -51,6 +52,7 @@ services:
     container_name: cinestar-auth-service
     restart: on-failure
     environment:
+      - TZ=America/Lima
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_auth
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
@@ -70,6 +72,7 @@ services:
     container_name: cinestar-movie-service
     restart: on-failure
     environment:
+      - TZ=America/Lima
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_movies
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
@@ -94,6 +97,7 @@ services:
     container_name: cinestar-showtime-service
     restart: on-failure
     environment:
+      - TZ=America/Lima
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_showtime
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
@@ -117,6 +121,7 @@ services:
     container_name: cinestar-api-gateway
     restart: on-failure
     environment:
+      - TZ=America/Lima
       - PORT=8080
       - JWT_SECRET=${JWT_SECRET}
       - AUTH_SERVICE_URL=http://cinestar-auth-service:8081

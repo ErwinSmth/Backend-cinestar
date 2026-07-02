@@ -12,6 +12,7 @@ import pe.edu.utp.cinestar.showtime.domain.entities.Proyeccion;
 import pe.edu.utp.cinestar.showtime.domain.entities.Sala;
 import pe.edu.utp.cinestar.showtime.domain.exceptions.ResourceNotFoundException;
 import pe.edu.utp.cinestar.showtime.domain.exceptions.RoomConflictException;
+import pe.edu.utp.cinestar.showtime.domain.exceptions.InvalidDateException;
 import pe.edu.utp.cinestar.showtime.domain.repositories.FuncionRepository;
 import pe.edu.utp.cinestar.showtime.domain.repositories.ProyeccionRepository;
 import pe.edu.utp.cinestar.showtime.domain.repositories.SalaRepository;
@@ -50,6 +51,12 @@ public class FuncionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Proyección no encontrada"));
 
         LocalDateTime fechaInicio = request.getFechaInicio().toLocalDateTime();
+        
+        // Validación Anti-Pasado
+        if (fechaInicio.isBefore(LocalDateTime.now())) {
+            throw new InvalidDateException("No se puede programar una función en una fecha u hora pasada.");
+        }
+
         // Calculamos la fecha fin sumándole la duración de la película MÁS 30 minutos de limpieza
         LocalDateTime fechaFin = fechaInicio.plusMinutes(request.getDuracionMin() + CLEANING_TIME_MINUTES);
 
@@ -127,6 +134,24 @@ public class FuncionService {
 
     public List<ProyeccionResponse> getProyecciones() {
         return proyeccionRepository.findAll().stream().map(this::toProyeccionResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateSalaStatus(Long salaId, String newStatus) {
+        Sala sala = salaRepository.findById(salaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sala no encontrada con ID: " + salaId));
+
+        if ("MANTENIMIENTO".equals(newStatus)) {
+            boolean hasFutureFunctions = funcionRepository.existsBySalaIdAndFechaInicioGreaterThanEqualAndStatus(
+                    salaId, LocalDateTime.now(), "PROGRAMADA");
+            
+            if (hasFutureFunctions) {
+                throw new RoomConflictException("La sala tiene funciones pendientes y no puede ponerse en mantenimiento. Cancélelas primero.");
+            }
+        }
+
+        sala.setEstado(newStatus);
+        salaRepository.save(sala);
     }
 
     // --- Mappers ---

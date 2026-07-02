@@ -26,4 +26,7 @@ public interface FuncionRepository extends JpaRepository<Funcion, Long> {
     // Obtener IDs únicos de películas con funciones activas/futuras
     @Query("SELECT DISTINCT f.movieId FROM Funcion f WHERE f.status = 'PROGRAMADA' AND f.fechaInicio >= CURRENT_TIMESTAMP")
     List<Long> findActiveMovieIds();
+
+    // Validar si existen funciones programadas a futuro para una sala (usado para mantenimiento)
+    boolean existsBySalaIdAndFechaInicioGreaterThanEqualAndStatus(Long salaId, LocalDateTime fechaInicio, String status);
 }
