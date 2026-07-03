@@ -78,8 +78,7 @@ public class FuncionService {
         funcion = funcionRepository.save(funcion);
 
         // Orquestación Síncrona hacia el Seat Service (Si falla, Spring hace Rollback)
-        // TODO: Descomentar cuando el Seat Service esté implementado
-        // seatRestClient.preGenerateSeats(funcion.getId(), sala.getCapacidad());
+        seatRestClient.preGenerateSeats(funcion.getId(), sala.getId());
 
         return funcion.getId();
     }

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Table(name = "cupones")
 @Getter
 @Setter
-public class Cupon {
+public class Cupon implements java.io.Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

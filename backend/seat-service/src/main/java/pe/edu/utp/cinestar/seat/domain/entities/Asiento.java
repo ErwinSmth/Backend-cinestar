@@ -8,7 +8,7 @@ import lombok.Setter;
 @Table(name = "asientos")
 @Getter
 @Setter
-public class Asiento {
+public class Asiento implements java.io.Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

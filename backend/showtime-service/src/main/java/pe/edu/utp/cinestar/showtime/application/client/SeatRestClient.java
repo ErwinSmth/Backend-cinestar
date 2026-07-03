@@ -27,8 +27,8 @@ public class SeatRestClient {
         this.restTemplate = new RestTemplate();
     }
 
-    public void preGenerateSeats(Long funcionId, Integer capacidad) {
-        URI uri = UriComponentsBuilder.fromUriString(seatServiceUrl + "/seats/generate")
+    public void preGenerateSeats(Long funcionId, Long salaId) {
+        URI uri = UriComponentsBuilder.fromUriString(seatServiceUrl + "/seats/internal/generate")
                 .build()
                 .toUri();
 
@@ -36,8 +36,8 @@ public class SeatRestClient {
         headers.set("Content-Type", "application/json");
 
         Map<String, Object> body = new HashMap<>();
-        body.put("funcion_id", funcionId);
-        body.put("capacidad", capacidad);
+        body.put("funcionId", funcionId);
+        body.put("salaId", salaId);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 

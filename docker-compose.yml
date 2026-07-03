@@ -147,12 +147,16 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - RABBITMQ_HOST=cinestar-rabbitmq
       - SHOWTIME_SERVICE_URL=http://cinestar-showtime-service:8084/api/v1
+      - REDIS_HOST=cinestar-redis
+      - REDIS_PORT=6379
     ports:
       - "8083:8083"
     depends_on:
       cinestar-postgres:
         condition: service_healthy
       cinestar-rabbitmq:
+        condition: service_healthy
+      cinestar-redis:
         condition: service_healthy
     networks:
       - cinestar-network
