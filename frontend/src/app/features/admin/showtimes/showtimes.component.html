@@ -322,8 +322,8 @@
     <!-- Footer Modal -->
     <div class="p-6 border-t border-slate-800 bg-slate-900/50 flex justify-end gap-4">
       <button (click)="closeCreateModal()" class="px-6 py-2 text-slate-300 hover:text-white font-bold transition">Cancelar</button>
-      <button *ngIf="selectedMovieId()" (click)="submitFuncion()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition shadow-lg shadow-red-600/20">
-        Guardar Función
+      <button *ngIf="selectedMovieId()" (click)="submitFuncion()" [disabled]="isSubmitting()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition shadow-lg shadow-red-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ isSubmitting() ? 'Guardando...' : 'Guardar Función' }}
       </button>
     </div>
   </div>

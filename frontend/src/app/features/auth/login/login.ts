@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -18,7 +18,8 @@ export class Login {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -35,7 +36,11 @@ export class Login {
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.isLoading.set(false);
-        if (this.authService.isAdmin()) {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        
+        if (returnUrl) {
+          this.router.navigateByUrl(returnUrl);
+        } else if (this.authService.isAdmin()) {
           this.router.navigate(['/admin']);
         } else if (this.authService.isTaquillero()) {
           this.router.navigate(['/taquilla']);

@@ -1,0 +1,192 @@
+.checkout-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  background-color: #0b0f19;
+  color: #fff;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.timer-banner {
+  background: rgba(255, 149, 0, 0.15);
+  border: 1px solid rgba(255, 149, 0, 0.4);
+  color: #ff9500;
+  padding: 15px 30px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 15px rgba(255, 149, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.timer-banner.urgent {
+  background: rgba(255, 59, 48, 0.2);
+  border-color: rgba(255, 59, 48, 0.5);
+  color: #ff3b30;
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 10px rgba(255, 59, 48, 0.2); }
+  100% { box-shadow: 0 0 25px rgba(255, 59, 48, 0.6); }
+}
+
+.timer-display {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkout-content {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.ticket-card {
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.poster-placeholder {
+  width: 250px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.movie-title {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.ticket-details {
+  padding: 40px;
+  flex-grow: 1;
+}
+
+.ticket-details h2 {
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: #00d4ff;
+  font-size: 1.5rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.value {
+  font-weight: 600;
+}
+
+.seats-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.seat-badge {
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  font-size: 0.9rem;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 25px 0;
+}
+
+.total-row {
+  font-size: 1.3rem;
+}
+
+.total-price {
+  color: #00d4ff;
+  font-size: 1.8rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.btn-cancel {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-cancel:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.btn-pay {
+  background: linear-gradient(135deg, #00d4ff 0%, #0077ff 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-pay:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 119, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .ticket-card {
+    flex-direction: column;
+  }
+  .poster-placeholder {
+    width: 100%;
+    height: 150px;
+    border-right: none;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+  }
+  .actions {
+    flex-direction: column-reverse;
+    gap: 15px;
+  }
+  .btn-pay {
+    width: 100%;
+  }
+}

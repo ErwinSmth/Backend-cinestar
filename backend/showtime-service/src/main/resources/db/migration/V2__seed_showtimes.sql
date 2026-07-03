@@ -57,3 +57,20 @@ INSERT INTO funcion (movie_id, sala_id, proyeccion_id, fecha_inicio, fecha_fin, 
 INSERT INTO funcion (movie_id, sala_id, proyeccion_id, fecha_inicio, fecha_fin, precio_ticket, status) VALUES
 (8, 3, 1, '2026-07-02 21:00:00', '2026-07-02 22:16:00', 15.00, 'PROGRAMADA'),
 (8, 3, 1, '2026-07-02 23:00:00', '2026-07-03 00:16:00', 15.00, 'PROGRAMADA');
+
+-- NEW: More functions for July 3 and 4
+-- Spider-Man: Un nuevo día
+INSERT INTO funcion (movie_id, sala_id, proyeccion_id, fecha_inicio, fecha_fin, precio_ticket, status) VALUES
+(1, 1, 3, '2026-07-03 15:00:00', '2026-07-03 17:00:00', 25.00, 'PROGRAMADA'),
+(1, 1, 3, '2026-07-04 18:00:00', '2026-07-04 20:00:00', 25.00, 'PROGRAMADA');
+
+-- Supergirl
+INSERT INTO funcion (movie_id, sala_id, proyeccion_id, fecha_inicio, fecha_fin, precio_ticket, status) VALUES
+(2, 4, 2, '2026-07-03 17:00:00', '2026-07-03 18:48:00', 18.00, 'PROGRAMADA'),
+(2, 4, 2, '2026-07-04 14:00:00', '2026-07-04 15:48:00', 18.00, 'PROGRAMADA');
+
+-- El día de la revelación (VIP)
+INSERT INTO funcion (movie_id, sala_id, proyeccion_id, fecha_inicio, fecha_fin, precio_ticket, status) VALUES
+(6, 5, 1, '2026-07-03 19:00:00', '2026-07-03 21:25:00', 40.00, 'PROGRAMADA'),
+(6, 5, 1, '2026-07-04 22:00:00', '2026-07-05 00:25:00', 40.00, 'PROGRAMADA');
+

@@ -1,0 +1,57 @@
+<div class="seat-map-container">
+  <!-- Screen Curve -->
+  <div class="screen-container">
+    <div class="screen-glow"></div>
+    <div class="screen-curve">PANTALLA</div>
+  </div>
+
+  <div *ngIf="error" class="error-banner">
+    {{ error }}
+  </div>
+
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Bloqueando tus asientos...</p>
+  </div>
+
+  <!-- Seat Grid -->
+  <div class="seat-grid">
+    <div class="row" *ngFor="let row of rows">
+      <div class="row-label">{{ row }}</div>
+      <div class="seats">
+        <button 
+          *ngFor="let seat of seatsByRow[row]"
+          class="seat-btn"
+          [ngClass]="{
+            'available': seat.estado === 'DISPONIBLE',
+            'locked': seat.estado === 'BLOQUEADO' || seat.estado === 'VENDIDO',
+            'selected': isSelected(seat)
+          }"
+          [disabled]="seat.estado !== 'DISPONIBLE'"
+          (click)="toggleSeatSelection(seat)"
+        >
+          {{ seat.numero }}
+        </button>
+      </div>
+      <div class="row-label">{{ row }}</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="seat-btn available preview"></div> Disponible</div>
+    <div class="legend-item"><div class="seat-btn selected preview"></div> Tu Selección</div>
+    <div class="legend-item"><div class="seat-btn locked preview"></div> Ocupado</div>
+  </div>
+
+  <!-- Bottom Panel -->
+  <div class="bottom-panel" *ngIf="selectedSeats.length > 0">
+    <div class="summary">
+      <div class="seats-list-preview">
+        <span class="seat-badge" *ngFor="let s of selectedSeats">{{ s.fila }}-{{ s.numero }}</span>
+      </div>
+      <span class="total">Total: S/ {{ selectedSeats.length * 20.00 | number:'1.2-2' }}</span>
+    </div>
+    <button class="confirm-btn" (click)="confirmSeats()">Continuar a Pago</button>
+  </div>
+</div>

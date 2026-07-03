@@ -1,0 +1,49 @@
+<div class="checkout-container">
+  
+  <div class="timer-banner" [ngClass]="{'urgent': timeLeft <= 60}">
+    <span>Tus butacas están reservadas. Tienes</span>
+    <span class="timer-display">{{ timerDisplay }}</span>
+    <span>para completar el pago.</span>
+  </div>
+
+  <div class="checkout-content">
+    <!-- Virtual Ticket Summary -->
+    <div class="ticket-card">
+      <div class="poster-placeholder">
+        <!-- In a real scenario, this would be an img tag with the movie poster -->
+        <div class="movie-title">Película Seleccionada</div>
+      </div>
+      
+      <div class="ticket-details">
+        <h2>Resumen de Compra</h2>
+        
+        <div class="detail-row">
+          <span class="label">Función ID:</span>
+          <span class="value">{{ funcionId }}</span>
+        </div>
+        
+        <div class="detail-row">
+          <span class="label">Asientos:</span>
+          <span class="value seats-list">
+            <span class="seat-badge" *ngFor="let seat of selectedSeats">
+              {{ seat.fila }}-{{ seat.numero }}
+            </span>
+          </span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="detail-row total-row">
+          <span class="label">Total a Pagar:</span>
+          <span class="value total-price">S/ {{ selectedSeats.length * 20.00 | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn-cancel" (click)="cancelAndReturn()">Cancelar y elegir otros asientos</button>
+      <button class="btn-pay" (click)="pay()">Pagar ahora</button>
+    </div>
+  </div>
+</div>

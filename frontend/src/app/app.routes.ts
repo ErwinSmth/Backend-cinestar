@@ -8,6 +8,7 @@ import { AdminShowtimesComponent } from './features/admin/showtimes/showtimes.co
 import { TaquillaDashboard } from './features/taquilla/dashboard/taquilla-dashboard';
 import { adminGuard } from './core/guards/admin.guard';
 import { taquillaGuard } from './core/guards/taquilla.guard';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Home, pathMatch: 'full' },
@@ -24,8 +25,14 @@ export const routes: Routes = [
   },
   { path: 'taquilla', component: TaquillaDashboard, canActivate: [taquillaGuard] },
   { 
-    path: 'booking/:funcionId', 
-    loadComponent: () => import('./features/public/booking/booking.component').then(m => m.BookingComponent) 
+    path: 'booking/seat-map', 
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/public/booking/seat-map/seat-map.component').then(m => m.SeatMapComponent) 
+  },
+  { 
+    path: 'booking/checkout', 
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/public/booking/checkout/checkout.component').then(m => m.CheckoutComponent) 
   },
   { 
     path: 'movies/:id', 

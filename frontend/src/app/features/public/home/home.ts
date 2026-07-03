@@ -291,7 +291,7 @@ export class Home implements OnInit, OnDestroy {
   goToBooking() {
     const fId = this.selectedFuncionForBook()?.id;
     if (fId) {
-      this.router.navigate(['/booking', fId]);
+      this.router.navigate(['/booking/seat-map'], { queryParams: { funcionId: fId }});
     }
   }
 }

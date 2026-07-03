@@ -107,6 +107,7 @@ export class AdminShowtimesComponent implements OnInit {
   timePickerMode = signal<'HOUR' | 'MINUTE'>('HOUR');
 
   errorMessage = signal<string | null>(null);
+  isSubmitting = signal<boolean>(false);
 
   ngOnInit() {
     this.loadData();
@@ -327,12 +328,16 @@ export class AdminShowtimesComponent implements OnInit {
       precio_ticket: this.newFuncion.precioTicket
     };
 
+    this.isSubmitting.set(true);
+
     this.showtimeService.programarFuncion(payload).subscribe({
       next: () => {
+        this.isSubmitting.set(false);
         this.closeCreateModal();
         this.loadData();
       },
       error: (err: any) => {
+        this.isSubmitting.set(false);
         if (err.status === 409) {
           this.errorMessage.set(err.error?.message || 'Choque de horarios: La sala ya está ocupada en este bloque.');
         } else if (err.status === 400) {
