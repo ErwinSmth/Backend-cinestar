@@ -16,6 +16,9 @@ COPY backend/seat-service/pom.xml .
 RUN --mount=type=cache,target=/root/.m2 \
     ./mvnw dependency:go-offline -q
 
+# Copia el archivo de la API que Maven necesita para autogenerar clases
+COPY docs/api-spec.yml /docs/api-spec.yml
+
 # Evitar que Maven consuma toda la RAM durante la compilación
 ENV MAVEN_OPTS="-Xmx256m -XX:TieredStopAtLevel=1"
 

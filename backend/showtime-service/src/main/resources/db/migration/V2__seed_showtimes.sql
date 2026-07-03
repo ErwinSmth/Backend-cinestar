@@ -6,10 +6,10 @@
 
 -- 1. Insertar Salas
 INSERT INTO salas (nombre, capacidad, estado) VALUES
-('Sala 1 - IMAX', 250, 'ACTIVA'),
-('Sala 2 - 4DX', 150, 'ACTIVA'),
-('Sala 3 - 2D', 300, 'ACTIVA'),
-('Sala 4 - 3D', 200, 'ACTIVA'),
+('Sala 1 - IMAX', 170, 'ACTIVA'),
+('Sala 2 - 4DX', 120, 'ACTIVA'),
+('Sala 3 - 2D', 150, 'ACTIVA'),
+('Sala 4 - 3D', 140, 'ACTIVA'),
 ('Sala 5 - VIP', 50, 'ACTIVA');
 
 

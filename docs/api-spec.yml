@@ -178,6 +178,65 @@ components:
           type: number
         status:
           type: string
+    SeatResponse:
+      type: object
+      properties:
+        ticketId:
+          type: integer
+          format: int64
+        fila:
+          type: string
+        numero:
+          type: integer
+        tipo:
+          type: string
+        estado:
+          type: string
+    SeatLockRequest:
+      type: object
+      required: [ticketId, usuarioId]
+      properties:
+        ticketId:
+          type: integer
+          format: int64
+        usuarioId:
+          type: integer
+          format: int64
+    SeatUnlockRequest:
+      type: object
+      required: [ticketId]
+      properties:
+        ticketId:
+          type: integer
+          format: int64
+    CouponRedeemRequest:
+      type: object
+      required: [codigo, ticketIds]
+      properties:
+        codigo:
+          type: string
+        ticketIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+    SeatGenerateRequest:
+      type: object
+      required: [funcionId, salaId]
+      properties:
+        funcionId:
+          type: integer
+          format: int64
+        salaId:
+          type: integer
+          format: int64
+    SeatCancelRequest:
+      type: object
+      required: [funcionId]
+      properties:
+        funcionId:
+          type: integer
+          format: int64
 paths:
   # ==========================================
   # AUTHENTICATION SERVICE
@@ -635,11 +694,17 @@ paths:
           in: query
           required: true
           schema:
-            type: string
-            format: uuid
+            type: integer
+            format: int64
       responses:
         "200":
           description: Mapa de butacas y su estado actual
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SeatResponse"
 
   /seats/lock:
     post:
@@ -652,13 +717,71 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                ticket_id:
-                  type: string
-                  format: uuid
+              $ref: "#/components/schemas/SeatLockRequest"
       responses:
         "200":
           description: Asiento bloqueado con éxito
         "409":
           description: Asiento ya fue tomado por otro usuario (OptimisticLockException)
+
+  /seats/unlock:
+    post:
+      summary: Libera un asiento explícitamente (ej. usuario cierra la pestaña)
+      tags: [Seats]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeatUnlockRequest"
+      responses:
+        "200":
+          description: Asiento devuelto a estado DISPONIBLE
+
+  /seats/redeem-coupon:
+    post:
+      summary: Canjea un cupón de cortesía para obtener tickets directamente
+      tags: [Seats]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponRedeemRequest"
+      responses:
+        "200":
+          description: Cupón quemado y asientos cambiados a VENDIDO
+        "400":
+          description: Cupón inválido o ya usado
+
+  /seats/internal/generate:
+    post:
+      summary: (Interno) Genera el mapa de tickets físico para una nueva función
+      tags: [Seats Internal]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeatGenerateRequest"
+      responses:
+        "201":
+          description: Tickets creados exitosamente
+
+  /seats/internal/cancel:
+    post:
+      summary: (Interno) Cancela todos los tickets de una función dada
+      tags: [Seats Internal]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeatCancelRequest"
+      responses:
+        "200":
+          description: Tickets cancelados exitosamente

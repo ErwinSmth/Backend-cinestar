@@ -6,7 +6,10 @@ import pe.edu.utp.cinestar.seat.domain.entities.Asiento;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
+
 @Repository
 public interface AsientoRepository extends JpaRepository<Asiento, Long> {
+    @Cacheable(value = "asientos_sala", key = "#salaId")
     List<Asiento> findBySalaId(Long salaId);
 }
