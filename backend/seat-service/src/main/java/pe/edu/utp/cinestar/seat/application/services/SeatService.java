@@ -15,6 +15,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import pe.edu.utp.cinestar.seat.config.RabbitMQConfig;
+import pe.edu.utp.cinestar.seat.model.event.SeatLockedEvent;
+
 @Service
 @RequiredArgsConstructor
 public class SeatService {
@@ -22,6 +26,7 @@ public class SeatService {
     private final AsientoRepository asientoRepository;
     private final TicketRepository ticketRepository;
     private final CuponRepository cuponRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @Transactional
     public void preGenerateSeats(Long funcionId, Long salaId) {
@@ -67,6 +72,10 @@ public class SeatService {
         ticket.setUsuarioId(usuarioId);
         ticket.setTiempoBloqueo(LocalDateTime.now().plusMinutes(5));
         ticketRepository.save(ticket);
+
+        // Publicar evento diferido a RabbitMQ para liberar el asiento si no se paga
+        SeatLockedEvent event = new SeatLockedEvent(ticketId, usuarioId);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY_WAIT, event);
     }
 
     @Transactional

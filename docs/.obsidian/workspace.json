@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "02_Arquitectura/README.md",
+                "file": "04_Base_De_Datos/04_Showtime_Database.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "04_Showtime_Database"
             }
           }
         ],
@@ -171,13 +171,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "02_Arquitectura/README.md",
+                "file": "04_Base_De_Datos/04_Showtime_Database.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de README"
+              "title": "Esquema de 04_Showtime_Database"
             }
           }
         ],
@@ -200,13 +200,13 @@
   },
   "active": "297c8c11583948fc",
   "lastOpenFiles": [
+    "03_Microservicios/03.4_Showtime_Service.md",
     "03_Microservicios/03.5_Seat_Service.md",
     "02_Arquitectura/README.md",
     "01_Requerimientos/README.md",
     "04_Frontend/01_Directrices.md",
     "04_Frontend/03_UI_UX_Business_Logic.md",
     "04_Base_De_Datos/04_Showtime_Database.md",
-    "03_Microservicios/03.4_Showtime_Service.md",
     "05_Seguridad/01_Security_Architecture.md",
     "07_Testing/01_Estrategia_Pruebas.md",
     "04_Frontend/02_Stack_Tecnologico.md",
