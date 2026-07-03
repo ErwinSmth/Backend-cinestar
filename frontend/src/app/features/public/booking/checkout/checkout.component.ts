@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SeatService } from '../../../../core/services/seat.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { SeatResponse } from '../../../../core/models/seat.model';
 
 @Component({
@@ -23,7 +24,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private seatService: SeatService
+    private seatService: SeatService,
+    private authService: AuthService
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {

@@ -137,7 +137,8 @@ export class MovieDetailComponent implements OnInit {
   }
 
   goToBooking(funcionId: number) {
-    this.router.navigate(['/booking/seat-map'], { queryParams: { funcionId: funcionId }});
+    const movieId = this.movie()?.id;
+    this.router.navigate(['/booking/seat-map'], { queryParams: { funcionId: funcionId, movieId: movieId }});
   }
 
   goBack() {

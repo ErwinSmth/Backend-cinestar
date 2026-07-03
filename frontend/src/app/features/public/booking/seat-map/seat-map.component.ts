@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SeatService } from '../../../../core/services/seat.service';
 import { SeatResponse } from '../../../../core/models/seat.model';
@@ -13,6 +14,7 @@ import { SeatResponse } from '../../../../core/models/seat.model';
 })
 export class SeatMapComponent implements OnInit {
   funcionId!: number;
+  movieId: number | null = null;
   seats: SeatResponse[] = [];
   rows: string[] = [];
   seatsByRow: { [key: string]: SeatResponse[] } = {};
@@ -22,6 +24,7 @@ export class SeatMapComponent implements OnInit {
 
   constructor(
     private seatService: SeatService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -29,6 +32,10 @@ export class SeatMapComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.queryParamMap.get('funcionId');
+    const movieIdParam = this.route.snapshot.queryParamMap.get('movieId');
+    if (movieIdParam) {
+      this.movieId = +movieIdParam;
+    }
     if (id) {
       this.funcionId = +id;
       this.loadSeats();
@@ -88,8 +95,13 @@ export class SeatMapComponent implements OnInit {
     this.isLoading = true;
     
     // We iterate sequentially or use Promise.all to lock all selected seats.
-    // Assuming usuarioId = 1 for now (mocked auth context)
-    const usuarioId = 1; 
+    const usuarioId = this.authService.getUserId(); 
+    
+    if (!usuarioId) {
+      alert('Error: No se pudo identificar al usuario.');
+      this.isLoading = false;
+      return;
+    }
     
     const lockRequests = this.selectedSeats.map(seat => 
       this.seatService.lockSeat({ ticketId: seat.ticketId, usuarioId }).toPromise()
@@ -114,5 +126,13 @@ export class SeatMapComponent implements OnInit {
       this.selectedSeats = [];
       this.loadSeats();
     });
+  }
+
+  goBack(): void {
+    if (this.movieId) {
+      this.router.navigate(['/movies', this.movieId]);
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 }

@@ -1,8 +1,17 @@
 <div class="seat-map-container">
+  <!-- Header con botón regresar -->
+  <header style="position: absolute; top: 0; left: 0; right: 0; padding: 2rem 4rem; z-index: 50;">
+    <button (click)="goBack()" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 8px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      Volver a la película
+    </button>
+  </header>
+
   <!-- Screen Curve -->
   <div class="screen-container">
+    <div class="screen-curve"></div>
     <div class="screen-glow"></div>
-    <div class="screen-curve">PANTALLA</div>
+    <div class="screen-text">PANTALLA</div>
   </div>
 
   <div *ngIf="error" class="error-banner">
@@ -11,7 +20,7 @@
 
   <div *ngIf="isLoading" class="loading-overlay">
     <div class="spinner"></div>
-    <p>Bloqueando tus asientos...</p>
+    <p>Asegurando asientos...</p>
   </div>
 
   <!-- Seat Grid -->
@@ -19,19 +28,20 @@
     <div class="row" *ngFor="let row of rows">
       <div class="row-label">{{ row }}</div>
       <div class="seats">
-        <button 
-          *ngFor="let seat of seatsByRow[row]"
-          class="seat-btn"
-          [ngClass]="{
-            'available': seat.estado === 'DISPONIBLE',
-            'locked': seat.estado === 'BLOQUEADO' || seat.estado === 'VENDIDO',
-            'selected': isSelected(seat)
-          }"
-          [disabled]="seat.estado !== 'DISPONIBLE'"
-          (click)="toggleSeatSelection(seat)"
-        >
-          {{ seat.numero }}
-        </button>
+        <div class="seat-wrapper" *ngFor="let seat of seatsByRow[row]">
+          <button 
+            class="seat-btn"
+            [ngClass]="{
+              'available': seat.estado === 'DISPONIBLE',
+              'locked': seat.estado === 'BLOQUEADO' || seat.estado === 'VENDIDO',
+              'selected': isSelected(seat)
+            }"
+            [disabled]="seat.estado !== 'DISPONIBLE'"
+            (click)="toggleSeatSelection(seat)"
+            [attr.data-tooltip]="'Fila ' + row + ' - Asiento ' + seat.numero"
+          >
+          </button>
+        </div>
       </div>
       <div class="row-label">{{ row }}</div>
     </div>
@@ -50,8 +60,11 @@
       <div class="seats-list-preview">
         <span class="seat-badge" *ngFor="let s of selectedSeats">{{ s.fila }}-{{ s.numero }}</span>
       </div>
-      <span class="total">Total: S/ {{ selectedSeats.length * 20.00 | number:'1.2-2' }}</span>
+      <span class="total">Total: <span class="price">S/ {{ selectedSeats.length * 20.00 | number:'1.2-2' }}</span></span>
     </div>
-    <button class="confirm-btn" (click)="confirmSeats()">Continuar a Pago</button>
+    <button class="confirm-btn" (click)="confirmSeats()">
+      <span>Continuar a Pago</span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+    </button>
   </div>
 </div>

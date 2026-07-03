@@ -62,7 +62,7 @@ public class AuthService {
                                 .collect(Collectors.toSet());
 
                 // generamos el jwt que el frontend almacenara
-                String token = jwtProvider.generateToken(user.getEmail(), roleNames);
+                String token = jwtProvider.generateToken(user.getEmail(), user.getUserId(), roleNames);
 
                 return AuthResponse.builder()
                                 .token(token)
@@ -89,7 +89,7 @@ public class AuthService {
                                 .collect(Collectors.toSet());
 
                 // generamos el jwt para esta sesion
-                String token = jwtProvider.generateToken(user.getEmail(), roleNames);
+                String token = jwtProvider.generateToken(user.getEmail(), user.getUserId(), roleNames);
 
                 return AuthResponse.builder()
                                 .token(token)

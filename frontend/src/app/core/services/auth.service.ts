@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 
 interface DecodedToken {
   sub: string;
+  userId?: number;
   groups?: string[];
   exp: number;
 }
@@ -20,6 +21,7 @@ export class AuthService {
   // Reactive state using Signals
   isAuthenticated = signal<boolean>(false);
   currentUserEmail = signal<string | null>(null);
+  currentUserId = signal<number | null>(null);
   currentUserRoles = signal<string[]>([]);
 
   constructor(private http: HttpClient) {
@@ -46,6 +48,7 @@ export class AuthService {
       localStorage.setItem(this.TOKEN_KEY, token);
       this.isAuthenticated.set(true);
       this.currentUserEmail.set(decoded.sub);
+      this.currentUserId.set(decoded.userId || null);
       this.currentUserRoles.set(decoded.groups || []);
     } catch (error) {
       console.error('Error decoding token', error);
@@ -77,7 +80,20 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     this.isAuthenticated.set(false);
     this.currentUserEmail.set(null);
+    this.currentUserId.set(null);
     this.currentUserRoles.set([]);
+  }
+
+  getUserEmail(): string | null {
+    return this.currentUserEmail();
+  }
+
+  getUserId(): number | null {
+    return this.currentUserId();
+  }
+
+  getRoles(): string[] {
+    return this.currentUserRoles();
   }
 
   getToken(): string | null {
