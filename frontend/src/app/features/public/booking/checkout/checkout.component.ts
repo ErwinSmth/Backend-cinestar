@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { SeatService } from '../../../../core/services/seat.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { SeatResponse } from '../../../../core/models/seat.model';
+import { MovieService, MovieDetailResponse } from '../../../../core/services/movie.service';
 
 @Component({
   selector: 'app-checkout',
@@ -14,6 +15,8 @@ import { SeatResponse } from '../../../../core/models/seat.model';
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
   funcionId!: number;
+  movieId!: number;
+  movieDetails?: MovieDetailResponse;
   selectedSeats: SeatResponse[] = [];
   
   // Timer state
@@ -25,21 +28,30 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private seatService: SeatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private movieService: MovieService
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.selectedSeats = navigation.extras.state['selectedSeats'] || [];
       this.funcionId = navigation.extras.state['funcionId'];
+      this.movieId = navigation.extras.state['movieId'];
     }
   }
 
   ngOnInit(): void {
     if (this.selectedSeats.length === 0) {
-      this.router.navigate(['/booking/seat-map'], { queryParams: { funcionId: this.funcionId || 1 }});
+      this.router.navigate(['/booking/seat-map'], { queryParams: { funcionId: this.funcionId || 1, movieId: this.movieId }});
       return;
     }
     
+    if (this.movieId) {
+      this.movieService.getMovieById(this.movieId).subscribe({
+        next: (res) => this.movieDetails = res,
+        error: (err) => console.error('Error fetching movie in checkout', err)
+      });
+    }
+
     this.startTimer();
   }
 
@@ -74,21 +86,28 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   handleTimeout(): void {
     alert('Tiempo expirado. Los asientos han sido liberados.');
-    // Navigating away will trigger ngOnDestroy which calls unlockSeats
-    this.router.navigate(['/booking/seat-map'], { queryParams: { funcionId: this.funcionId }});
+    this.processUnlockAndNavigate();
   }
 
   cancelAndReturn(): void {
-    // Navigating away triggers ngOnDestroy -> unlockSeats
-    this.router.navigate(['/booking/seat-map'], { queryParams: { funcionId: this.funcionId }});
+    this.processUnlockAndNavigate();
   }
 
-  unlockSeats(): void {
-    const unlockRequests = this.selectedSeats.map(seat => 
-      this.seatService.unlockSeat({ ticketId: seat.ticketId }).toPromise()
-    );
-    // Best effort background release
-    Promise.all(unlockRequests).catch(err => console.error('Error unlocking', err));
+  async processUnlockAndNavigate(): Promise<void> {
+    await this.unlockSeats();
+    this.isPaid = true; // Prevents ngOnDestroy from unlocking again
+    this.router.navigate(['/booking/seat-map'], { queryParams: { funcionId: this.funcionId, movieId: this.movieId }});
+  }
+
+  async unlockSeats(): Promise<void> {
+    try {
+      const unlockRequests = this.selectedSeats.map(seat => 
+        this.seatService.unlockSeat({ ticketId: seat.ticketId }).toPromise()
+      );
+      await Promise.all(unlockRequests);
+    } catch (err) {
+      console.error('Error unlocking', err);
+    }
   }
 
   pay(): void {

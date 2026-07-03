@@ -9,10 +9,10 @@
   <div class="checkout-content">
     <!-- Virtual Ticket Summary -->
     <div class="ticket-card">
-      <div class="poster-placeholder">
-        <!-- In a real scenario, this would be an img tag with the movie poster -->
-        <div class="movie-title">Película Seleccionada</div>
+      <div class="poster-placeholder" *ngIf="!movieDetails?.poster_path">
+        <div class="movie-title">{{ movieDetails?.titulo || 'Película Seleccionada' }}</div>
       </div>
+      <img *ngIf="movieDetails?.poster_path" [src]="movieDetails?.poster_path" class="movie-poster" alt="Movie Poster">
       
       <div class="ticket-details">
         <h2>Resumen de Compra</h2>

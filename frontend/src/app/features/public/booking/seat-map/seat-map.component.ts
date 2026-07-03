@@ -112,7 +112,8 @@ export class SeatMapComponent implements OnInit {
       this.router.navigate(['/booking/checkout'], { 
         state: { 
           selectedSeats: this.selectedSeats,
-          funcionId: this.funcionId
+          funcionId: this.funcionId,
+          movieId: this.movieId
         } 
       });
     }).catch(err => {
