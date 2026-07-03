@@ -1,10 +1,6 @@
 version: '3.8'
 name: cinemacore
-
 services:
-  # ==========================================
-  # INFRAESTRUCTURA BASE
-  # ==========================================
   cinestar-postgres:
     image: postgres:15-alpine
     container_name: cinestar-postgres
@@ -14,34 +10,43 @@ services:
       - POSTGRES_USER=${DB_USER:-postgres}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-root}
     ports:
-      - "5433:5432"
+      - 5433:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./.docker/postgres/init-db:/docker-entrypoint-initdb.d
     networks:
       - cinestar-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${DB_USER:-postgres}
       interval: 10s
       timeout: 15s
       retries: 10
       start_period: 20s
-
   cinestar-redis:
     image: redis:7-alpine
     container_name: cinestar-redis
     restart: unless-stopped
-    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    command:
+      - redis-server
+      - --save
+      - '60'
+      - '1'
+      - --loglevel
+      - warning
     ports:
-      - "6379:6379"
+      - 6379:6379
     networks:
       - cinestar-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        - CMD
+        - redis-cli
+        - ping
       interval: 10s
       timeout: 5s
       retries: 5
-
   cinestar-rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: cinestar-rabbitmq
@@ -50,20 +55,20 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - 5672:5672
+      - 15672:15672
     networks:
       - cinestar-network
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test:
+        - CMD
+        - rabbitmq-diagnostics
+        - -q
+        - ping
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 120s
-
-  # ==========================================
-  # MICROSERVICIOS
-  # ==========================================
   cinestar-auth-service:
     build:
       context: ./backend/auth-service
@@ -71,19 +76,24 @@ services:
     container_name: cinestar-auth-service
     restart: on-failure
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -XX:+UseContainerSupport
       - TZ=America/Lima
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_auth
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
       - JWT_SECRET=${JWT_SECRET}
     ports:
-      - "8081:8081"
+      - 8081:8081
     depends_on:
       cinestar-postgres:
         condition: service_healthy
     networks:
       - cinestar-network
-
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
   cinestar-movie-service:
     build:
       context: .
@@ -91,6 +101,7 @@ services:
     container_name: cinestar-movie-service
     restart: on-failure
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -XX:+UseContainerSupport
       - TZ=America/Lima
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_movies
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
@@ -100,15 +111,21 @@ services:
       - TMDB_API_KEY=${TMDB_API_KEY}
       - TMDB_API_TOKEN=${TMDB_API_TOKEN}
     ports:
-      - "8082:8082"
+      - 8082:8082
     depends_on:
       cinestar-postgres:
         condition: service_healthy
       cinestar-redis:
         condition: service_healthy
+      cinestar-auth-service:
+        condition: service_started
     networks:
       - cinestar-network
-
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
   cinestar-showtime-service:
     build:
       context: .
@@ -116,6 +133,7 @@ services:
     container_name: cinestar-showtime-service
     restart: on-failure
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -XX:+UseContainerSupport
       - TZ=America/Lima
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_showtime
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
@@ -124,15 +142,21 @@ services:
       - SPRING_REDIS_PORT=6379
       - SEAT_SERVICE_URL=http://cinestar-seat-service:8083/api/v1
     ports:
-      - "8084:8084"
+      - 8084:8084
     depends_on:
       cinestar-postgres:
         condition: service_healthy
       cinestar-redis:
         condition: service_healthy
+      cinestar-movie-service:
+        condition: service_started
     networks:
       - cinestar-network
-
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
   cinestar-seat-service:
     build:
       context: .
@@ -140,6 +164,7 @@ services:
     container_name: cinestar-seat-service
     restart: on-failure
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx384m -XX:+UseContainerSupport
       - TZ=America/Lima
       - SPRING_DATASOURCE_URL=jdbc:postgresql://cinestar-postgres:5432/db_seats
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
@@ -150,7 +175,7 @@ services:
       - REDIS_HOST=cinestar-redis
       - REDIS_PORT=6379
     ports:
-      - "8083:8083"
+      - 8083:8083
     depends_on:
       cinestar-postgres:
         condition: service_healthy
@@ -158,9 +183,15 @@ services:
         condition: service_healthy
       cinestar-redis:
         condition: service_healthy
+      cinestar-showtime-service:
+        condition: service_started
     networks:
       - cinestar-network
-
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
   cinestar-api-gateway:
     build:
       context: .
@@ -176,22 +207,20 @@ services:
       - SEAT_SERVICE_URL=http://cinestar-seat-service:8083
       - SHOWTIME_SERVICE_URL=http://cinestar-showtime-service:8084
     ports:
-      - "8080:8080"
+      - 8080:8080
     depends_on:
-      - cinestar-auth-service
-      - cinestar-movie-service
-      - cinestar-seat-service
-      - cinestar-showtime-service
+      cinestar-seat-service:
+        condition: service_started
     networks:
       - cinestar-network
-
-# ==========================================
-# VOLUMENES Y REDES
-# ==========================================
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 256M
 volumes:
   postgres_data:
     name: cinestar_postgres_data
-
 networks:
   cinestar-network:
     name: cinestar_network
